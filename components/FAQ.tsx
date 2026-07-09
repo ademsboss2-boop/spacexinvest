@@ -26,10 +26,9 @@ export default function FAQ() {
             const open = openIndex === i
             return (
               <div key={f.q} className="border-b border-[rgba(255,255,255,0.04)] py-4">
-                <button className="w-full text-left flex items-center justify-between gap-4" onClick={() => setOpenIndex(open ? null : i)}>
+                <button className="w-full text-left flex items-center justify-between gap-4 focus-visible:underline" onClick={() => setOpenIndex(open ? null : i)}>
                   <div>
                     <div className="font-medium">{f.q}</div>
-                    <div className="text-muted text-sm"> </div>
                   </div>
                   <div className="text-muted">{open ? '−' : '+'}</div>
                 </button>

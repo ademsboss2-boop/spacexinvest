@@ -9,6 +9,14 @@
   --text: #FFFFFF;
   --muted: #B8B8B8;
   --border: rgba(255,255,255,0.1);
+
+  /* Typography scale */
+  --type-scale-1: 0.875rem; /* 14 */
+  --type-scale-2: 1rem;     /* 16 */
+  --type-scale-3: 1.125rem; /* 18 */
+  --type-scale-4: 1.5rem;   /* 24 */
+  --type-scale-5: 2rem;     /* 32 */
+  --type-scale-6: 3rem;     /* 48 */
 }
 
 html, body, #__next {
@@ -34,20 +42,67 @@ html, body, #__next {
   letter-spacing: -0.02em;
 }
 
+/* Card primitive to ensure consistent treatment */
+.card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
 /* Buttons */
 .btn {
   @apply inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold;
 }
 
 .btn-primary {
-  @apply bg-white text-black hover:opacity-95;
+  @apply bg-white text-black hover:opacity-98 shadow-sm;
 }
 
 .btn-ghost {
   @apply border border-[rgba(255,255,255,0.06)] text-white bg-transparent;
 }
 
-/* utility subtle text */
+/* Focus states */
+:focus {
+  outline: none;
+}
+
+/* Use :focus-visible to show a clear but subtle ring */
+:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.06), 0 0 0 6px rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+
+/* Ensure keyboard focus for interactive elements */
+button:focus-visible, a:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+}
+
+/* subtle text */
 .text-muted {
   color: var(--muted);
+}
+
+/* Heading utilities tuned to SpaceX-like scale */
+.h-hero {
+  font-size: var(--type-scale-6);
+  line-height: 1.02;
+}
+
+@media (max-width: 640px) {
+  .h-hero { font-size: 2rem; }
+}
+
+/* Utilities to visually hide but remain accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

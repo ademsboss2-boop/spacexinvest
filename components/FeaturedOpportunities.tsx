@@ -20,7 +20,7 @@ const SAMPLE: Opportunity[] = [
 
 function Card({ o }: { o: Opportunity }) {
   return (
-    <article className="bg-surface p-6 rounded-lg border border-[rgba(255,255,255,0.04)] hover:shadow-md transition-shadow">
+    <article className="card hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="text-sm text-muted">{o.tag}</div>

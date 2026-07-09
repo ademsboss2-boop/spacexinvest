@@ -9,22 +9,34 @@ export default function Hero() {
   return (
     <section id="hero" className="relative h-screen w-full flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        <img src="/media/hero-poster.svg" alt="Hero background placeholder" className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.25 }} />
+        <img src="/media/hero-poster.svg" alt="Hero background placeholder" className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.28 }} />
+        {/* subtle cinematic radial vignette */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 100%)' }} />
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-0" />
 
       <Container className="relative z-10 text-center px-6">
-        <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-4xl sm:text-6xl font-extrabold leading-tight max-w-4xl mx-auto">
+        <motion.h1
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="h-hero font-extrabold leading-tight max-w-4xl mx-auto tracking-tight"
+        >
           Invest in tomorrow's missions.
         </motion.h1>
 
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.12, duration: 0.6 }} className="mt-6 text-muted max-w-2xl mx-auto">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.12, duration: 0.6 }}
+          className="mt-6 text-muted max-w-2xl mx-auto text-[1.0625rem]"
+        >
           SpaceX Invest is a premium, mission-aligned investment experience — curated private and public opportunities for mission-driven investors.
         </motion.p>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="mt-10 flex items-center justify-center gap-4 flex-wrap">
-          <Button variant="primary" as="a" className="min-w-[160px]" href="#opportunities">Start Investing</Button>
+          <Button variant="primary" as="a" className="min-w-[160px] tracking-wide uppercase" href="#opportunities">Start Investing</Button>
           <Button variant="ghost" as="a" className="min-w-[140px]" href="#why">Learn More</Button>
         </motion.div>
       </Container>

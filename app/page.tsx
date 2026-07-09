@@ -9,7 +9,7 @@ import Footer from '../components/Footer'
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-background">
+    <main id="page-content" className="min-h-screen bg-background">
       <Nav />
       <Hero />
       <InvestmentOverview />

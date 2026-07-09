@@ -6,7 +6,7 @@ import { ShieldCheck, Lock, FileText } from 'lucide-react'
 
 function Item({ icon: Icon, title, text }: { icon: any; title: string; text: string }) {
   return (
-    <div className="bg-surface p-6 rounded-lg border border-[rgba(255,255,255,0.04)] flex gap-4 items-start">
+    <div className="card flex gap-4 items-start">
       <div className="p-2 rounded-md bg-black/20">
         <Icon size={20} />
       </div>

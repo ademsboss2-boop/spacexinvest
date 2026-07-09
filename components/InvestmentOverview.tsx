@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-surface p-6 rounded-lg border border-[rgba(255,255,255,0.04)]">
+    <div className="card">
       <div className="text-muted text-sm">{label}</div>
       <div className="mt-2 text-2xl font-semibold">{value}</div>
     </div>

@@ -17,15 +17,15 @@ export default function WhySpaceXInvest() {
 
         <MotionConfig transition={{ duration: 0.5 }}>
           <motion.div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <motion.div className="bg-surface p-6 rounded-lg border border-[rgba(255,255,255,0.04)]">
+            <motion.div className="card">
               <h3 className="font-semibold">Mission Alignment</h3>
               <p className="text-muted mt-2 text-sm">Investments are selected for strategic fit and long-term mission impact.</p>
             </motion.div>
-            <motion.div className="bg-surface p-6 rounded-lg border border-[rgba(255,255,255,0.04)]">
+            <motion.div className="card">
               <h3 className="font-semibold">Engineering Rigor</h3>
               <p className="text-muted mt-2 text-sm">Rigorous technical and financial diligence modeled after product development processes.</p>
             </motion.div>
-            <motion.div className="bg-surface p-6 rounded-lg border border-[rgba(255,255,255,0.04)]">
+            <motion.div className="card">
               <h3 className="font-semibold">Operational Experience</h3>
               <p className="text-muted mt-2 text-sm">Access to operators, advisors, and key industry partnerships.</p>
             </motion.div>
