@@ -1,5 +1,4 @@
-import React from 'react'
-import { Icon as LucideIcon } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 type IconProps = {
   icon: LucideIcon

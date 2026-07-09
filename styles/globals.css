@@ -56,7 +56,7 @@ html, body, #__next {
 }
 
 .btn-primary {
-  @apply bg-white text-black hover:opacity-98 shadow-sm;
+  @apply bg-white text-black hover:opacity-90 shadow-sm;
 }
 
 .btn-ghost {
