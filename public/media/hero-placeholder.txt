@@ -1,0 +1,6 @@
+This is a placeholder notice.
+
+If you have a final hero video, place it at:
+  /public/media/hero.mp4
+
+The hero will fall back to /public/media/hero-poster.svg when the video is not present.

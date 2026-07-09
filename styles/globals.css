@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens */
+:root {
+  --bg: #000000;
+  --surface: #0D0D0D;
+  --text: #FFFFFF;
+  --muted: #B8B8B8;
+  --border: rgba(255,255,255,0.1);
+}
+
+html, body, #__next {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container helper to match the design language */
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Basic shared UI primitives */
+.logo {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Buttons */
+.btn {
+  @apply inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold;
+}
+
+.btn-primary {
+  @apply bg-white text-black hover:opacity-95;
+}
+
+.btn-ghost {
+  @apply border border-[rgba(255,255,255,0.06)] text-white bg-transparent;
+}
+
+/* utility subtle text */
+.text-muted {
+  color: var(--muted);
+}
