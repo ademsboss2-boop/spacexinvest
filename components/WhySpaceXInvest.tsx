@@ -2,48 +2,32 @@
 
 import React from 'react'
 import Container from './ui/Container'
-import { MotionConfig, motion, useReducedMotion } from 'framer-motion'
-import { Award, Cpu } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
 
 export default function WhySpaceXInvest() {
   const reduced = useReducedMotion()
-  const itemAnim = reduced ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }
+  const items = [
+    { title: 'Mission Focus', text: 'Investments centered on companies advancing space and infrastructure.' },
+    { title: 'Technical Rigor', text: 'We apply engineering-first diligence to assess long-term viability.' },
+    { title: 'Operational Access', text: 'Access to industry operators and strategic partnerships.' }
+  ]
 
   return (
-    <section id="why" className="py-20 bg-[linear-gradient(180deg,#0b0b0b,transparent)]">
+    <section id="why" className="w-full bg-black text-white py-20">
       <Container>
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="h-xl">Why SpaceX Invest</h2>
-          <p className="lead mt-3">We combine deep domain expertise with engineering rigor and operational experience — building investments that align with mission and scale.</p>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-semibold">Why SpaceX Invest</h2>
+          <p className="mt-3 text-sm text-white/70">A disciplined approach blending mission alignment with operational expertise.</p>
         </div>
 
-        <MotionConfig transition={{ duration: 0.5 }}>
-          <motion.div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <motion.div className="card" initial={{ opacity: 0, y: 12 }} animate={itemAnim} transition={{ duration: 0.4 }}>
-              <div className="flex items-center gap-3">
-                <Award size={20} />
-                <h3 className="font-semibold">Mission Alignment</h3>
-              </div>
-              <p className="text-muted mt-2 text-sm">Investments are selected for strategic fit and long-term mission impact.</p>
+        <div className="mt-12 max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+          {items.map((it, i) => (
+            <motion.div key={it.title} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduced ? 0 : i * 0.06, duration: 0.42 }}>
+              <div className="text-lg font-semibold">{it.title}</div>
+              <div className="mt-2 text-sm text-white/70">{it.text}</div>
             </motion.div>
-
-            <motion.div className="card" initial={{ opacity: 0, y: 12 }} animate={itemAnim} transition={{ duration: 0.45 }}>
-              <div className="flex items-center gap-3">
-                <Cpu size={20} />
-                <h3 className="font-semibold">Engineering Rigor</h3>
-              </div>
-              <p className="text-muted mt-2 text-sm">Technical and financial diligence modeled after product development processes.</p>
-            </motion.div>
-
-            <motion.div className="card" initial={{ opacity: 0, y: 12 }} animate={itemAnim} transition={{ duration: 0.5 }}>
-              <div className="flex items-center gap-3">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2 12h20" stroke="currentColor" strokeWidth="1.2"/></svg>
-                <h3 className="font-semibold">Operational Experience</h3>
-              </div>
-              <p className="text-muted mt-2 text-sm">Access to operators, advisors, and key industry partnerships.</p>
-            </motion.div>
-          </motion.div>
-        </MotionConfig>
+          ))}
+        </div>
       </Container>
     </section>
   )

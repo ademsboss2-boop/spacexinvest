@@ -15,27 +15,25 @@ export default function FAQ() {
   const reduced = useReducedMotion()
 
   return (
-    <section id="faq" className="py-20 bg-[linear-gradient(180deg,transparent,#080808)]">
+    <section id="faq" className="w-full bg-black text-white py-20">
       <Container>
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="h-xl">FAQ</h2>
-          <p className="lead mt-3">Common questions about investing through SpaceX Invest.</p>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-semibold">FAQ</h2>
+          <p className="mt-3 text-sm text-white/70">Common questions about investing through SpaceX Invest.</p>
         </div>
 
-        <div className="mt-8 max-w-3xl mx-auto">
+        <div className="mt-8 max-w-4xl mx-auto space-y-4">
           {FAQ_ITEMS.map((f, i) => {
             const open = openIndex === i
             return (
-              <div key={f.q} className="border-b border-[rgba(255,255,255,0.04)] py-4">
+              <div key={f.q} className="border-b border-white/6 py-4">
                 <button className="w-full text-left flex items-center justify-between gap-4" onClick={() => setOpenIndex(open ? null : i)}>
-                  <div>
-                    <div className="font-medium">{f.q}</div>
-                  </div>
-                  <div className="text-muted">{open ? '−' : '+'}</div>
+                  <div className="text-base font-medium">{f.q}</div>
+                  <div className="text-white/60">{open ? '−' : '+'}</div>
                 </button>
 
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }} transition={{ duration: reduced ? 0 : 0.28 }}>
-                  {open && <div className="card mt-3 text-muted text-sm">{f.a}</div>}
+                  {open && <div className="mt-3 text-sm text-white/70">{f.a}</div>}
                 </motion.div>
               </div>
             )
