@@ -23,16 +23,18 @@ function Card({ o }: { o: Opportunity }) {
     <article className="card hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-sm text-muted">{o.tag}</div>
+          <div className="text-sm text-muted uppercase tracking-[0.06em]">{o.tag}</div>
           <h3 className="mt-2 font-semibold">{o.title}</h3>
           <p className="text-muted mt-2 text-sm">{o.subtitle}</p>
         </div>
+
         <div className="text-right">
           <div className="text-sm text-muted">Min</div>
           <div className="mt-1 font-semibold">{o.minInvestment}</div>
         </div>
       </div>
-      <div className="mt-6 flex items-center gap-3">
+
+      <div className="mt-6 flex items-center justify-between gap-3">
         <button className="btn btn-ghost text-sm">Learn More</button>
         <button className="btn btn-primary text-sm">Invest</button>
       </div>
@@ -46,11 +48,11 @@ export default function FeaturedOpportunities() {
       <Container>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold">Featured Opportunities</h2>
-            <p className="mt-2 text-muted">Curated investment opportunities aligned with SpaceX’s mission.</p>
+            <h2 className="h-xl">Featured Opportunities</h2>
+            <p className="lead mt-2">Curated, mission-aligned investments — selected for strategic fit and strong long-term potential.</p>
           </div>
           <div className="hidden sm:flex items-center gap-3">
-            <a className="text-sm text-muted" href="#opportunities">View all</a>
+            <a className="text-sm small-muted" href="#opportunities">View all</a>
           </div>
         </div>
 

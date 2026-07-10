@@ -13,6 +13,9 @@ function Item({ icon: Icon, title, text }: { icon: any; title: string; text: str
       <div>
         <div className="font-semibold">{title}</div>
         <div className="text-muted text-sm mt-1">{text}</div>
+        <div className="mt-3">
+          <button className="btn btn-ghost btn-sm">Read more</button>
+        </div>
       </div>
     </div>
   )
@@ -23,16 +26,14 @@ export default function SecurityCompliance() {
     <section id="security" className="py-20">
       <Container>
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl font-semibold">Security & Compliance</h2>
-          <p className="mt-3 text-muted">
-            Security and compliance are foundational — built to enterprise standards with layered technical and process controls.
-          </p>
+          <h2 className="h-xl">Security & Compliance</h2>
+          <p className="lead mt-3">Security and compliance are foundational — designed for enterprise standards with layered technical and operational controls.</p>
         </div>
 
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
           <Item icon={ShieldCheck} title="Enterprise-grade controls" text="Role-based access, audit trails, and continuous monitoring." />
-          <Item icon={Lock} title="Data protection" text="Encryption at rest and in transit, strict key management." />
-          <Item icon={FileText} title="Regulatory compliance" text="Workflows and processes aligned with relevant regulatory frameworks." />
+          <Item icon={Lock} title="Data protection" text="Encryption in transit and at rest, strict key management and monitoring." />
+          <Item icon={FileText} title="Regulatory compliance" text="Policies and processes aligned with applicable frameworks and investor reporting." />
         </div>
       </Container>
     </section>
