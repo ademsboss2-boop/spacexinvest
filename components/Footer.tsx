@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="w-full bg-black text-white py-12">
       <div className="container mx-auto">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-6xl mx-auto text-center">
           <div className="logo text-lg">SpaceX Invest</div>
           <div className="mt-3 text-sm text-white/60">A SpaceX-aligned investment platform. Prototype for demonstration purposes.</div>
 
