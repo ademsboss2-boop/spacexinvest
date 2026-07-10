@@ -2,13 +2,14 @@
 
 import React from 'react'
 import Container from './ui/Container'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
+  const reduced = useReducedMotion()
   return (
     <div className="card">
-      <div className="text-muted text-sm">{label}</div>
-      <motion.div className="mt-2 text-2xl font-semibold" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <div className="text-muted text-sm uppercase tracking-wide">{label}</div>
+      <motion.div className="mt-2 text-3xl md:text-2xl font-semibold" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduced ? 0 : 0.5 }}>
         {value}
       </motion.div>
     </div>

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Container from './ui/Container'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 type Opportunity = {
   id: string
@@ -19,12 +19,13 @@ const SAMPLE: Opportunity[] = [
 ]
 
 function Card({ o }: { o: Opportunity }) {
+  const reduced = useReducedMotion()
   return (
-    <article className="card hover:shadow-lg transition-shadow">
+    <motion.article className="card" whileHover={reduced ? {} : { y: -6, boxShadow: '0 22px 40px rgba(0,0,0,0.72)' }} transition={{ duration: 0.25 }}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="text-sm text-muted uppercase tracking-[0.06em]">{o.tag}</div>
-          <h3 className="mt-2 font-semibold">{o.title}</h3>
+          <h3 className="mt-2 font-semibold text-lg">{o.title}</h3>
           <p className="text-muted mt-2 text-sm">{o.subtitle}</p>
         </div>
 
@@ -35,10 +36,10 @@ function Card({ o }: { o: Opportunity }) {
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-3">
-        <button className="btn btn-ghost text-sm">Learn More</button>
-        <button className="btn btn-primary text-sm">Invest</button>
+        <button className="btn btn-ghost btn-sm">Learn More</button>
+        <button className="btn btn-primary btn-sm">Invest</button>
       </div>
-    </article>
+    </motion.article>
   )
 }
 
@@ -56,11 +57,11 @@ export default function FeaturedOpportunities() {
           </div>
         </div>
 
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 0.6 }} className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {SAMPLE.map((s) => (
             <Card key={s.id} o={s} />
           ))}
-        </motion.div>
+        </div>
       </Container>
     </section>
   )

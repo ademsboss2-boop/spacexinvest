@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { Menu, X } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import Container from './ui/Container'
 import Button from './ui/Button'
 
@@ -17,6 +17,7 @@ const navItems = [
 export default function Nav() {
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
+  const shouldReduceMotion = useReducedMotion()
 
   // Prevent background scroll and mark main content hidden for screen readers
   useEffect(() => {
@@ -71,18 +72,28 @@ export default function Nav() {
     }
   }
 
+  const backdropVariant = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 }
+  }
+
+  const panelVariant = shouldReduceMotion
+    ? { hidden: { y: 0, opacity: 1 }, visible: { y: 0, opacity: 1 } }
+    : { hidden: { y: 24, opacity: 0 }, visible: { y: 0, opacity: 1 } }
+
   return (
     <header className="w-full top-0 left-0 z-50 sticky nav-glass">
       <div className="nav-inner">
         <div className="flex items-center gap-6">
-          <a href="#" className="logo" aria-label="SpaceX Invest">
-            <span style={{ letterSpacing: '-0.02em' }}>SpaceX</span> <span style={{ opacity: 0.9 }}>Invest</span>
+          <a href="#" className="logo flex items-baseline gap-2" aria-label="SpaceX Invest">
+            <span className="text-lg font-extrabold tracking-tight">SpaceX</span>
+            <span className="text-sm small-muted">Invest</span>
           </a>
         </div>
 
         <nav className="hidden md:flex items-center nav-links" aria-label="Primary navigation">
           {navItems.map((n) => (
-            <a key={n.label} href={n.href} onClick={(e) => handleNavClick(e, n.href)} className="text-sm small-muted">
+            <a key={n.label} href={n.href} onClick={(e) => handleNavClick(e, n.href)} className="text-sm small-muted hover:text-white focus:text-white transition-colors">
               {n.label}
             </a>
           ))}
@@ -102,13 +113,7 @@ export default function Nav() {
 
       <AnimatePresence>
         {open && (
-          <motion.div
-            key="mobile-menu"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 flex flex-col"
-          >
+          <motion.div key="mobile-menu" initial="hidden" animate="visible" exit="hidden" variants={backdropVariant} className="fixed inset-0 z-50 bg-black/90 flex flex-col">
             <div ref={menuRef} className="flex items-center justify-between p-6">
               <a className="logo" href="#">SpaceX Invest</a>
               <button aria-label="Close menu" onClick={() => setOpen(false)} className="p-2">
@@ -116,21 +121,9 @@ export default function Nav() {
               </button>
             </div>
 
-            <motion.nav
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 30, opacity: 0 }}
-              transition={{ duration: 0.36, ease: [0.2, 0.9, 0.2, 1] }}
-              className="flex-1 flex flex-col items-center justify-center gap-6"
-              aria-label="Mobile navigation"
-            >
+            <motion.nav variants={panelVariant} transition={{ duration: 0.36, ease: [0.2, 0.9, 0.2, 1] }} className="flex-1 flex flex-col items-center justify-center gap-6" aria-label="Mobile navigation">
               {navItems.map((n) => (
-                <a
-                  key={n.label}
-                  href={n.href}
-                  onClick={(e) => handleNavClick(e, n.href)}
-                  className="text-2xl font-medium"
-                >
+                <a key={n.label} href={n.href} onClick={(e) => handleNavClick(e, n.href)} className="text-2xl font-medium">
                   {n.label}
                 </a>
               ))}

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Container from './ui/Container'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 const FAQ_ITEMS = [
   { q: 'Who can invest?', a: 'This prototype assumes accredited and institutional investors for private offerings. Public funds have lower thresholds.' },
@@ -12,6 +12,7 @@ const FAQ_ITEMS = [
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const reduced = useReducedMotion()
 
   return (
     <section id="faq" className="py-20 bg-[linear-gradient(180deg,transparent,#080808)]">
@@ -33,7 +34,7 @@ export default function FAQ() {
                   <div className="text-muted">{open ? '−' : '+'}</div>
                 </button>
 
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }} transition={{ duration: 0.28 }}>
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }} transition={{ duration: reduced ? 0 : 0.28 }}>
                   {open && <div className="card mt-3 text-muted text-sm">{f.a}</div>}
                 </motion.div>
               </div>
