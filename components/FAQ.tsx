@@ -47,6 +47,20 @@ export default function FAQ() {
         aria-hidden="true"
       />
 
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-[24%] -right-[30%] z-[1] h-[72%] w-[95%] select-none sm:-bottom-[28%] sm:-right-[14%] sm:h-[94%] sm:w-[62%] lg:-right-[8%]"
+      >
+        <Image
+          src="/media/section-objects/faq-planet.png"
+          alt=""
+          fill
+          sizes="(max-width: 640px) 95vw, 62vw"
+          className="object-contain object-right-bottom opacity-[0.36] drop-shadow-[0_0_50px_rgba(255,255,255,0.06)] sm:opacity-[0.6]"
+        />
+      </div>
+
       <Container className="relative z-10">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-3xl">

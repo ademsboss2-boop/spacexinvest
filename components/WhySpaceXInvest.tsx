@@ -42,6 +42,20 @@ export default function WhySpaceXInvest() {
         aria-hidden="true"
       />
 
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-[28%] top-[8%] z-[1] h-[70%] w-[96%] select-none sm:-right-[14%] sm:top-[6%] sm:h-[86%] sm:w-[64%] lg:-right-[8%]"
+      >
+        <Image
+          src="/media/section-objects/why-starlink.png"
+          alt=""
+          fill
+          sizes="(max-width: 640px) 96vw, 64vw"
+          className="object-contain object-right opacity-[0.28] drop-shadow-[0_15px_45px_rgba(0,0,0,0.7)] sm:opacity-[0.48]"
+        />
+      </div>
+
       <Container className="relative z-10">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">

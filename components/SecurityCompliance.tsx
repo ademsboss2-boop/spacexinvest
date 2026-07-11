@@ -42,6 +42,20 @@ export default function SecurityCompliance() {
         className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/85 to-black"
       />
 
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-[32%] top-[4%] z-[1] h-[60%] w-full select-none sm:-right-[16%] sm:h-[82%] sm:w-[68%] lg:-right-[8%]"
+      >
+        <Image
+          src="/media/section-objects/security-station.png"
+          alt=""
+          fill
+          sizes="(max-width: 640px) 100vw, 68vw"
+          className="object-contain object-right-top opacity-[0.3] drop-shadow-[0_15px_45px_rgba(0,0,0,0.7)] sm:opacity-[0.5]"
+        />
+      </div>
+
       <Container className="relative z-10">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-3xl">

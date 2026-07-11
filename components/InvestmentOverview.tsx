@@ -33,6 +33,20 @@ export default function InvestmentOverview() {
         className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black"
       />
 
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-[18%] -right-[22%] z-[1] h-[68%] w-[92%] select-none sm:-bottom-[26%] sm:-right-[8%] sm:h-[96%] sm:w-[58%] lg:-right-[2%]"
+      >
+        <Image
+          src="/media/section-objects/overview-moon.png"
+          alt=""
+          fill
+          sizes="(max-width: 640px) 92vw, 58vw"
+          className="object-contain object-bottom opacity-[0.7] drop-shadow-[0_0_45px_rgba(255,255,255,0.08)] sm:opacity-[0.86]"
+        />
+      </div>
+
       <Container className="relative z-10">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-3xl">

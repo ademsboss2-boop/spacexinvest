@@ -59,6 +59,20 @@ export default function FeaturedOpportunities() {
         aria-hidden="true"
       />
 
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-[10%] -right-[30%] z-[1] h-[58%] w-[95%] select-none sm:-right-[12%] sm:-bottom-[6%] sm:h-[88%] sm:w-[56%] lg:-right-[5%]"
+      >
+        <Image
+          src="/media/section-objects/opportunities-falcon9.png"
+          alt=""
+          fill
+          sizes="(max-width: 640px) 95vw, 56vw"
+          className="object-contain object-right-bottom opacity-[0.38] drop-shadow-[0_20px_50px_rgba(0,0,0,0.65)] sm:opacity-[0.64]"
+        />
+      </div>
+
       <Container className="relative z-10">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-3xl">
