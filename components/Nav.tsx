@@ -16,8 +16,20 @@ const navItems = [
 
 export default function Nav() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const shouldReduceMotion = useReducedMotion()
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 20)
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   useEffect(() => {
     const page = document.getElementById('page-content')
@@ -106,7 +118,13 @@ export default function Nav() {
       }
 
   return (
-    <header className="sticky top-0 left-0 z-50 nav-glass">
+    <header
+      className={`fixed left-0 right-0 top-0 z-50 border-b transition-all duration-300 ${
+        scrolled
+          ? 'border-white/10 bg-black/90 backdrop-blur-md'
+          : 'border-transparent bg-transparent'
+      }`}
+    >
       <div className="nav-inner">
         {/* Logo */}
         <a href="#" aria-label="SpaceX Invest" className="flex items-center">
