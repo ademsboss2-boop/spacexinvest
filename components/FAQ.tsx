@@ -2,12 +2,25 @@
 
 import React, { useState } from 'react'
 import Container from './ui/Container'
-import { motion, useReducedMotion } from 'framer-motion'
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion
+} from 'framer-motion'
 
 const FAQ_ITEMS = [
-  { q: 'Who can invest?', a: 'This prototype assumes accredited and institutional investors for private offerings. Public funds have lower thresholds.' },
-  { q: 'What is the minimum investment?', a: 'Minimums vary by offering. Many curated private opportunities begin at $5,000–$25,000 for early access.' },
-  { q: 'How is reporting handled?', a: 'Quarterly reporting and ad-hoc investor updates. Full reporting is part of the dashboard feature planned for Phase 2.' }
+  {
+    q: 'Who can invest?',
+    a: 'This competition prototype illustrates accredited, institutional, and public-investment experiences. It does not accept real investments.'
+  },
+  {
+    q: 'What is the minimum investment?',
+    a: 'Illustrative minimums vary by opportunity and are shown only to demonstrate the intended platform experience.'
+  },
+  {
+    q: 'How is reporting handled?',
+    a: 'The prototype envisions quarterly reporting and investor updates through a future dashboard experience.'
+  }
 ]
 
 export default function FAQ() {
@@ -15,25 +28,71 @@ export default function FAQ() {
   const reduced = useReducedMotion()
 
   return (
-    <section id="faq" className="w-full bg-white text-black py-24">
+    <section
+      id="faq"
+      className="relative w-full border-t border-white/10 bg-gradient-to-b from-black to-[#060606] py-24 text-white md:py-32"
+    >
       <Container>
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-xl md:text-2xl font-medium tracking-tight">FAQ</h2>
-          <p className="mt-3 text-sm text-black/60">Common questions about investing through SpaceX Invest.</p>
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/50">
+              Investor Information
+            </p>
 
-          <div className="mt-8 space-y-4">
-            {FAQ_ITEMS.map((f, i) => {
-              const open = openIndex === i
+            <h2 className="mt-4 text-3xl font-semibold uppercase tracking-tight md:text-5xl">
+              Frequently Asked Questions
+            </h2>
+
+            <p className="mt-5 text-sm leading-relaxed text-white/60 md:text-base">
+              Common questions about the SpaceX Invest competition prototype.
+            </p>
+          </div>
+
+          <div className="mt-12 space-y-3">
+            {FAQ_ITEMS.map((item, index) => {
+              const open = openIndex === index
+              const answerId = `faq-answer-${index}`
+
               return (
-                <div key={f.q} className="border-b border-black/8 py-4">
-                  <button className="w-full text-left flex items-center justify-between gap-4" onClick={() => setOpenIndex(open ? null : i)}>
-                    <div className="text-base font-medium">{f.q}</div>
-                    <div className="text-black/50">{open ? '−' : '+'}</div>
+                <div
+                  key={item.q}
+                  className="border border-white/10 bg-white/5 px-6 backdrop-blur-md md:px-8"
+                >
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    aria-controls={answerId}
+                    onClick={() => setOpenIndex(open ? null : index)}
+                    className="flex min-h-[76px] w-full items-center justify-between gap-6 py-5 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                  >
+                    <span className="text-base font-medium md:text-lg">
+                      {item.q}
+                    </span>
+
+                    <span
+                      aria-hidden="true"
+                      className="text-2xl font-light text-white/45"
+                    >
+                      {open ? '−' : '+'}
+                    </span>
                   </button>
 
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }} transition={{ duration: reduced ? 0 : 0.28 }}>
-                    {open && <div className="mt-3 text-sm text-black/60">{f.a}</div>}
-                  </motion.div>
+                  <AnimatePresence initial={false}>
+                    {open ? (
+                      <motion.div
+                        id={answerId}
+                        initial={reduced ? false : { height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: reduced ? 0 : 0.25 }}
+                        className="overflow-hidden"
+                      >
+                        <p className="max-w-3xl pb-7 text-sm leading-relaxed text-white/55">
+                          {item.a}
+                        </p>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
                 </div>
               )
             })}

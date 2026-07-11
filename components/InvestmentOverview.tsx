@@ -4,30 +4,70 @@ import React from 'react'
 import Container from './ui/Container'
 import { motion, useReducedMotion } from 'framer-motion'
 
+const STATS = [
+  { label: 'Active Opportunities', value: '12' },
+  { label: 'Minimum Investment', value: '$5,000' },
+  { label: 'Illustrative Target Range', value: '14%–22%' }
+]
+
 export default function InvestmentOverview() {
   const reduced = useReducedMotion()
 
-  const stats = [
-    { label: 'Active Opportunities', value: '12' },
-    { label: 'Minimum Investment', value: '$5,000' },
-    { label: 'Target IRR', value: '14%–22%' }
-  ]
-
   return (
-    <section id="overview" className="w-full bg-black text-white py-24">
-      <Container>
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-xl md:text-2xl font-medium tracking-tight">Investment Overview</h2>
-          <p className="mt-3 text-sm md:text-base text-white/70">Concise metrics for mission-focused investors. Clear entry points and disciplined selection.</p>
+    <section
+      id="overview"
+      className="relative w-full overflow-hidden border-t border-white/10 bg-gradient-to-b from-black via-[#070707] to-black py-24 text-white md:py-32"
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/[0.035] to-transparent"
+      />
 
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8">
-            {stats.map((s, i) => (
-              <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduced ? 0 : i * 0.06, duration: 0.45 }} className="text-center">
-                <div className="text-sm text-white/60 uppercase tracking-wider">{s.label}</div>
-                <div className="mt-3 text-3xl md:text-4xl font-semibold">{s.value}</div>
+      <Container className="relative z-10">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/50">
+              The Investment Case
+            </p>
+
+            <h2 className="mt-4 text-3xl font-semibold uppercase leading-tight tracking-tight md:text-5xl">
+              Investment Overview
+            </h2>
+
+            <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
+              Concise metrics for mission-focused investors, with clear entry
+              points and disciplined selection.
+            </p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {STATS.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={reduced ? false : { opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.35 }}
+                transition={{
+                  delay: reduced ? 0 : index * 0.06,
+                  duration: reduced ? 0 : 0.5
+                }}
+                className="border border-white/10 bg-white/5 px-6 py-8 backdrop-blur-md"
+              >
+                <div className="text-xs uppercase tracking-[0.18em] text-white/45">
+                  {stat.label}
+                </div>
+
+                <div className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+                  {stat.value}
+                </div>
               </motion.div>
             ))}
           </div>
+
+          <p className="mt-5 text-xs text-white/35">
+            Illustrative prototype figures only. Not an offer, guarantee, or
+            investment forecast.
+          </p>
         </div>
       </Container>
     </section>

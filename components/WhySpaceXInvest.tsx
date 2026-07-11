@@ -4,28 +4,73 @@ import React from 'react'
 import Container from './ui/Container'
 import { motion, useReducedMotion } from 'framer-motion'
 
+const ITEMS = [
+  {
+    title: 'Mission Focus',
+    text: 'Investments centered on technologies advancing space and global infrastructure.'
+  },
+  {
+    title: 'Technical Rigor',
+    text: 'Engineering-first diligence designed to assess long-term viability.'
+  },
+  {
+    title: 'Operational Access',
+    text: 'A prototype experience built around industry insight and connectivity.'
+  }
+]
+
 export default function WhySpaceXInvest() {
   const reduced = useReducedMotion()
-  const items = [
-    { title: 'Mission Focus', text: 'Investments centered on companies advancing space and infrastructure.' },
-    { title: 'Technical Rigor', text: 'Engineering-first diligence to assess long-term viability.' },
-    { title: 'Operational Access', text: 'Partnerships and access to industry operators.' }
-  ]
 
   return (
-    <section id="why" className="w-full bg-black text-white py-24">
+    <section
+      id="why"
+      className="relative w-full border-t border-white/10 bg-gradient-to-b from-[#050505] via-[#090909] to-black py-24 text-white md:py-32"
+    >
       <Container>
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-xl md:text-2xl font-medium tracking-tight">Why SpaceX Invest</h2>
-          <p className="mt-3 text-sm text-white/70">A disciplined approach: mission alignment, engineering rigor, and operational connectivity.</p>
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/50">
+                Our Approach
+              </p>
 
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8">
-            {items.map((it, i) => (
-              <motion.div key={it.title} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduced ? 0 : i * 0.06, duration: 0.42 }} className="text-center">
-                <div className="text-lg font-semibold">{it.title}</div>
-                <div className="mt-2 text-sm text-white/70">{it.text}</div>
-              </motion.div>
-            ))}
+              <h2 className="mt-4 text-3xl font-semibold uppercase leading-tight tracking-tight md:text-5xl">
+                Why SpaceX Invest
+              </h2>
+
+              <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/60 md:text-base">
+                A disciplined approach built around mission alignment,
+                engineering rigor, and operational awareness.
+              </p>
+            </div>
+
+            <div className="divide-y divide-white/10 border-y border-white/10">
+              {ITEMS.map((item, index) => (
+                <motion.div
+                  key={item.title}
+                  initial={reduced ? false : { opacity: 0, x: 12 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  transition={{
+                    delay: reduced ? 0 : index * 0.06,
+                    duration: reduced ? 0 : 0.5
+                  }}
+                  className="grid gap-4 py-8 sm:grid-cols-[70px_1fr]"
+                >
+                  <div className="text-xs font-semibold tracking-[0.2em] text-white/30">
+                    0{index + 1}
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold">{item.title}</h3>
+                    <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/55">
+                      {item.text}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </Container>
