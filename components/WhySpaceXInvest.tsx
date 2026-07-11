@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import Container from './ui/Container'
 import { motion, useReducedMotion } from 'framer-motion'
 
@@ -27,7 +28,21 @@ export default function WhySpaceXInvest() {
       id="why"
       className="relative w-full border-t border-white/10 bg-gradient-to-b from-[#050505] via-[#090909] to-black py-24 text-white md:py-32"
     >
-      <Container>
+      <Image
+        src="/media/section-backgrounds/why-astronaut.jpg"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-right opacity-[0.18]"
+        aria-hidden="true"
+      />
+
+      <div
+        className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/65"
+        aria-hidden="true"
+      />
+
+      <Container className="relative z-10">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
             <div>

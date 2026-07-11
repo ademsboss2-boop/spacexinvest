@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import Container from './ui/Container'
 import { motion, useReducedMotion } from 'framer-motion'
 
@@ -44,7 +45,21 @@ export default function FeaturedOpportunities() {
       id="opportunities"
       className="relative w-full border-t border-white/10 bg-[#050505] py-24 text-white md:py-32"
     >
-      <Container>
+      <Image
+        src="/media/section-backgrounds/opportunities-falcon.jpg"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-center opacity-[0.2]"
+        aria-hidden="true"
+      />
+
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/85 to-[#050505]"
+        aria-hidden="true"
+      />
+
+      <Container className="relative z-10">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/50">

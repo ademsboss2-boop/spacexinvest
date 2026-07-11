@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import Container from './ui/Container'
 import { motion, useReducedMotion } from 'framer-motion'
 
@@ -27,9 +28,18 @@ export default function SecurityCompliance() {
       id="security"
       className="relative w-full border-t border-white/10 bg-black py-24 text-white md:py-32"
     >
+      <Image
+        src="/media/section-backgrounds/security-dragon.jpg"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-center opacity-[0.2]"
+        aria-hidden="true"
+      />
+
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-white/[0.04] to-transparent"
+        className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/85 to-black"
       />
 
       <Container className="relative z-10">

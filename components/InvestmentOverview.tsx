@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import Container from './ui/Container'
 import { motion, useReducedMotion } from 'framer-motion'
 
@@ -18,9 +19,18 @@ export default function InvestmentOverview() {
       id="overview"
       className="relative w-full overflow-hidden border-t border-white/10 bg-gradient-to-b from-black via-[#070707] to-black py-24 text-white md:py-32"
     >
+      <Image
+        src="/media/section-backgrounds/overview-earth.jpg"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-center opacity-[0.22]"
+        aria-hidden="true"
+      />
+
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/[0.035] to-transparent"
+        className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black"
       />
 
       <Container className="relative z-10">
