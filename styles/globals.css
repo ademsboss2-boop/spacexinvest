@@ -104,16 +104,28 @@ html, body, #__next {
 .btn { @apply inline-flex items-center justify-center rounded-md font-semibold; transition: transform var(--motion-duration) var(--motion-ease), box-shadow var(--motion-duration) var(--motion-ease), opacity var(--motion-duration) var(--motion-ease); }
 
 .btn-primary {
-  background: linear-gradient(180deg,#ffffff 0%, #f3f4f6 100%);
-  color: #000;
+  background: rgba(18, 18, 18, 0.48);
+  color: #fff;
   padding: 0.75rem 1.25rem;
-  border-radius: 10px;
-  box-shadow: 0 8px 26px rgba(2,6,23,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
-.btn-primary:hover { transform: translateY(-3px); }
-.btn-primary:active { transform: translateY(-1px); }
+
+.btn-primary:hover {
+  background: rgba(35, 35, 35, 0.62);
+  border-color: rgba(255, 255, 255, 0.38);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  background: rgba(18, 18, 18, 0.58);
+  transform: translateY(0);
+}
 
 .btn-ghost {
   background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 1rem; border-radius: 10px;
