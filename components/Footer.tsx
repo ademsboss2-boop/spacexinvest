@@ -2,19 +2,44 @@ import React from 'react'
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-black text-white py-12">
+    <footer className="w-full bg-black px-6 py-12 text-white">
       <div className="container mx-auto">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="logo text-lg">SpaceX Invest</div>
-          <div className="mt-3 text-sm text-white/60">A SpaceX-aligned investment platform. Prototype for demonstration purposes.</div>
-
-          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-white/60">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Contact</a>
+        <div className="mx-auto max-w-6xl text-center">
+          <div className="text-lg font-semibold uppercase tracking-wide">
+            SpaceX Invest
           </div>
 
-          <div className="mt-6 text-xs text-white/50">© {new Date().getFullYear()} SpaceX Invest</div>
+          <p className="mt-3 text-sm text-white/60">
+            Competition prototype. No real securities are offered or sold
+            through this website.
+          </p>
+
+          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-white/60">
+            <a
+              href="#"
+              className="transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              Privacy
+            </a>
+
+            <a
+              href="#"
+              className="transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              Terms
+            </a>
+
+            <a
+              href="#"
+              className="transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              Contact
+            </a>
+          </div>
+
+          <div className="mt-6 text-xs text-white/50">
+            © {new Date().getFullYear()} SpaceX Invest
+          </div>
         </div>
       </div>
     </footer>
