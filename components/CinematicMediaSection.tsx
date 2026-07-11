@@ -6,9 +6,9 @@ import { motion, useReducedMotion } from 'framer-motion'
 import Button from './ui/Button'
 import Container from './ui/Container'
 
-type Props = {
-  id?: string
+type CinematicMediaSectionProps = {
   sectionId?: string
+  id?: string
   videoSrc?: string
   imageSrc?: string
   imageAlt?: string
@@ -22,8 +22,8 @@ type Props = {
 }
 
 export default function CinematicMediaSection({
-  id,
   sectionId,
+  id,
   videoSrc,
   imageSrc,
   imageAlt,
@@ -34,118 +34,142 @@ export default function CinematicMediaSection({
   buttonLabel,
   buttonHref = '#opportunities',
   align = 'left'
-}: Props) {
+}: CinematicMediaSectionProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const containerRef = useRef<HTMLElement | null>(null)
-  const reduce = useReducedMotion()
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
-    if (!videoRef.current || !videoSrc) return
     const video = videoRef.current
+    const section = sectionRef.current
 
-    // IntersectionObserver to pause/play video depending on visibility,
-    // so background videos don't keep playing offscreen.
+    if (!video || !section || !videoSrc) return
+
+    if (reduceMotion) {
+      video.pause()
+      return
+    }
+
     const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            if (!reduce) {
-              const p = video.play()
-              if (p && typeof p.then === 'function') p.catch(() => {})
-            }
-          } else {
-            try {
-              video.pause()
-            } catch {
-              /* ignore */
-            }
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          const playPromise = video.play()
+
+          if (playPromise) {
+            playPromise.catch(() => {
+              // Autoplay may be restricted by the browser.
+            })
           }
+        } else {
+          video.pause()
         }
       },
-      { threshold: [0.5] }
+      {
+        threshold: [0, 0.5, 1]
+      }
     )
 
-    if (containerRef.current) observer.observe(containerRef.current)
+    observer.observe(section)
 
     return () => {
       observer.disconnect()
-      try {
-        video.pause()
-      } catch {}
+      video.pause()
     }
-  }, [videoSrc, reduce])
+  }, [videoSrc, reduceMotion])
+
+  const alignmentClasses = {
+    left: 'items-start text-left',
+    center: 'items-center text-center mx-auto',
+    right: 'items-end text-right ml-auto'
+  }
 
   const motionProps = {
-    initial: { opacity: 0, y: 8 },
+    initial: reduceMotion
+      ? { opacity: 1, y: 0 }
+      : { opacity: 0, y: 12 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true, amount: 0.3 },
-    transition: { duration: 0.72 }
-  } as const
-
-  // content alignment classes
-  const alignmentClass =
-    align === 'center' ? 'items-center text-center' : align === 'right' ? 'items-end text-right' : 'items-start text-left'
-
-  const sectionIdToUse = sectionId ?? id
+    transition: {
+      duration: reduceMotion ? 0 : 0.72
+    }
+  }
 
   return (
-    <section id={sectionIdToUse} ref={containerRef} className="relative w-full min-h-[90svh] md:min-h-[100svh] overflow-hidden bg-black">
-      {/* Video background (decorative) */}
+    <section
+      id={sectionId ?? id}
+      ref={sectionRef}
+      className="relative min-h-[90svh] w-full overflow-hidden bg-black md:min-h-[100svh]"
+    >
       {videoSrc ? (
         <video
           ref={videoRef}
-          className="absolute inset-0 w-full h-full object-cover"
-          src={videoSrc}
+          className="absolute inset-0 h-full w-full object-cover"
           poster={poster}
           muted
           loop
           playsInline
           preload="metadata"
-          autoPlay={!reduce}
+          autoPlay={!reduceMotion}
           aria-hidden="true"
-        />
+        >
+          <source src={videoSrc} type="video/mp4" />
+        </video>
       ) : imageSrc ? (
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src={imageSrc}
-            alt={imageAlt ?? title}
-            fill
-            sizes="(max-width: 640px) 100vw, 100vw"
-            style={{ objectFit: 'cover' }}
-            priority={false}
-          />
-        </div>
+        <Image
+          src={imageSrc}
+          alt={imageAlt ?? title}
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
       ) : null}
 
-      {/* restrained dark overlay for legibility (subtle) */}
-      <div className="absolute inset-0 bg-black/40" />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/75"
+        aria-hidden="true"
+      />
 
-      {/* Content positioned toward lower-left (or alignment) */}
-      <Container className={`relative z-10 flex ${alignmentClass} h-full`}>
-        <div className="mt-auto mb-12 max-w-3xl px-4">
-          {eyebrow && (
-            <motion.div {...motionProps}>
-              <div className="text-xs uppercase tracking-widest text-white/70">{eyebrow}</div>
-            </motion.div>
-          )}
+      <Container className="relative z-10 flex min-h-[90svh] items-end px-6 pb-14 pt-28 md:min-h-[100svh] md:pb-20">
+        <div
+          className={`flex w-full max-w-3xl flex-col ${alignmentClasses[align]}`}
+        >
+          {eyebrow ? (
+            <motion.p
+              {...motionProps}
+              className="text-xs font-semibold uppercase tracking-[0.22em] text-white/75"
+            >
+              {eyebrow}
+            </motion.p>
+          ) : null}
 
-          <motion.h2 {...motionProps} className="mt-3 text-3xl sm:text-4xl md:text-5xl lg:text-[3.6rem] leading-tight font-extrabold text-white uppercase">
+          <motion.h2
+            {...motionProps}
+            className="mt-3 text-3xl font-extrabold uppercase leading-[0.98] text-white sm:text-4xl md:text-5xl lg:text-[3.7rem]"
+          >
             {title}
           </motion.h2>
 
-          {description && (
-            <motion.p {...motionProps} className="mt-4 text-sm md:text-base text-white/80 max-w-2xl">
+          {description ? (
+            <motion.p
+              {...motionProps}
+              className="mt-5 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base"
+            >
               {description}
             </motion.p>
-          )}
+          ) : null}
 
-          {buttonLabel && (
-            <motion.div {...motionProps} className="mt-6">
-              <Button as="a" href={buttonHref} variant="primary">
+          {buttonLabel ? (
+            <motion.div {...motionProps} className="mt-7">
+              <Button
+                as="a"
+                href={buttonHref}
+                variant="primary"
+                className="min-w-[190px]"
+              >
                 {buttonLabel}
               </Button>
             </motion.div>
-          )}
+          ) : null}
         </div>
       </Container>
     </section>
