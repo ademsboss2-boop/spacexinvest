@@ -1,5 +1,6 @@
 import React from 'react'
 import PlatformHeader from '../../components/platform/PlatformHeader'
+import PlatformFooter from '../../components/platform/PlatformFooter'
 import DashboardClient from '../../components/platform/DashboardClient'
 
 export default function DashboardPage() {
@@ -7,6 +8,7 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-gradient-to-b from-black via-[#060606] to-black text-white">
       <PlatformHeader />
       <DashboardClient />
+      <PlatformFooter />
     </main>
   )
 }

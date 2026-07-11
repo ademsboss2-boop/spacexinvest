@@ -12,15 +12,15 @@ import {
 const FAQ_ITEMS = [
   {
     q: 'Who can invest?',
-    a: 'This competition prototype illustrates accredited, institutional, and public-investment experiences. It does not accept real investments.'
+    a: 'Eligibility depends on the offering type, investor qualifications, and applicable requirements.'
   },
   {
     q: 'What is the minimum investment?',
-    a: 'Illustrative minimums vary by opportunity and are shown only to demonstrate the intended platform experience.'
+    a: 'Minimum investments vary by opportunity and are displayed on each opportunity page.'
   },
   {
     q: 'How is reporting handled?',
-    a: 'The prototype envisions quarterly reporting and investor updates through a future dashboard experience.'
+    a: 'Portfolio reporting and investor updates are available through the dashboard experience.'
   }
 ]
 
@@ -73,7 +73,7 @@ export default function FAQ() {
             </h2>
 
             <p className="mt-5 text-sm leading-relaxed text-white/60 md:text-base">
-              Common questions about the SpaceX Invest competition prototype.
+              Common questions about investing through SpaceX Invest.
             </p>
           </div>
 

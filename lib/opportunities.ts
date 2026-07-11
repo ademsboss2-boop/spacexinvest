@@ -1,4 +1,3 @@
-// lib/opportunities.ts
 export type Opportunity = {
   slug: string
   title: string
@@ -14,7 +13,6 @@ export type Opportunity = {
   risks: string[]
   metrics: { label: string; value: string; note?: string }[]
   status: string
-  prototypeDisclaimer: string
 }
 
 export const OPPORTUNITIES: Opportunity[] = [
@@ -23,31 +21,38 @@ export const OPPORTUNITIES: Opportunity[] = [
     title: 'Starlink Growth Series',
     category: 'Private',
     subtitle: 'Series A–B secondary access',
-    summary: 'Targeted private allocation into Starlink growth opportunities (illustrative).',
+    summary:
+      'A private allocation focused on the continued growth of satellite connectivity infrastructure.',
     minimumInvestment: 25000,
     formattedMinimum: '$25,000',
     media: '/media/section-objects/why-starlink.png',
     overview:
-      'Illustrative and prototype overview of Starlink Growth Series. This is prototype content only.',
+      'The Starlink Growth Series is designed around expanding satellite connectivity, network capacity, and global infrastructure.',
     investmentThesis:
-      'Access to satellite internet growth with illustrative target ranges and engineering-anchored risk mitigation (example only).',
+      'Continued demand for high-speed global connectivity may support long-term growth across satellite deployment, network services, and supporting infrastructure.',
     highlights: [
-      'Illustrative: high alignment with mission-driven infrastructure',
-      'Prototype: selective secondary access to early rounds',
-      'Example only: engineering-aligned diligence'
+      'Exposure to global satellite-connectivity infrastructure',
+      'Engineering-led opportunity assessment',
+      'Long-term focus on network expansion and adoption'
     ],
     risks: [
-      'Illustrative: market & technology risk',
-      'Prototype: liquidity limitations for private allocations',
-      'Example only: valuations are illustrative'
+      'Technology and execution risk',
+      'Limited liquidity for private allocations',
+      'Market, valuation, and regulatory uncertainty'
     ],
     metrics: [
-      { label: 'Illustrative Target IRR', value: '14%–22%', note: 'Example only' },
-      { label: 'Illustrative Min. Hold', value: '3–7 years', note: 'Prototype' }
+      {
+        label: 'Target IRR',
+        value: '14%–22%',
+        note: 'Target range; not guaranteed'
+      },
+      {
+        label: 'Target Hold Period',
+        value: '3–7 years',
+        note: 'Estimated'
+      }
     ],
-    status: 'Prototype — Closed to real capital',
-    prototypeDisclaimer:
-      'Prototype data and illustrative figures only. No real securities are offered or sold through this website.'
+    status: 'Coming Soon'
   },
   {
     slug: 'launch-services-co-invest',
@@ -55,31 +60,37 @@ export const OPPORTUNITIES: Opportunity[] = [
     category: 'Private',
     subtitle: 'Growth capital for dedicated launch capacity',
     summary:
-      'Prototype co-invest into launch services expansion; illustrative terms and allocations only.',
+      'A private opportunity centered on launch capacity, operational scale, and supporting infrastructure.',
     minimumInvestment: 10000,
     formattedMinimum: '$10,000',
     media: '/media/section-objects/opportunities-falcon9.png',
     overview:
-      'This page contains an illustrative overview of a launch services co-invest prototype.',
+      'The Launch Services Co-Invest focuses on expanding launch capacity and the systems required to support reliable access to orbit.',
     investmentThesis:
-      'Invest in capacity expansions with engineering-driven selection. Illustrative metrics provided.',
+      'Demand for satellite deployment, research missions, and orbital infrastructure may support continued investment in launch capacity and operational efficiency.',
     highlights: [
-      'Prototype: direct operational exposure (illustrative)',
-      'Example only: strategic capacity alignment',
-      'Illustrative: engineering due diligence'
+      'Exposure to launch-services infrastructure',
+      'Focus on operational capacity and efficiency',
+      'Engineering-based opportunity assessment'
     ],
     risks: [
-      'Prototype: operational execution risk',
-      'Illustrative: concentration risk',
-      'Example only: liquidity constraints'
+      'Operational and execution risk',
+      'Concentration within the launch-services market',
+      'Private-market liquidity constraints'
     ],
     metrics: [
-      { label: 'Illustrative Target IRR', value: '10%–18%', note: 'Example only' },
-      { label: 'Illustrative Min. Hold', value: '2–6 years', note: 'Prototype' }
+      {
+        label: 'Target IRR',
+        value: '10%–18%',
+        note: 'Target range; not guaranteed'
+      },
+      {
+        label: 'Target Hold Period',
+        value: '2–6 years',
+        note: 'Estimated'
+      }
     ],
-    status: 'Prototype — Informational only',
-    prototypeDisclaimer:
-      'Prototype data and illustrative figures only. No real securities are offered or sold through this website.'
+    status: 'Coming Soon'
   },
   {
     slug: 'public-equity-fund',
@@ -87,38 +98,44 @@ export const OPPORTUNITIES: Opportunity[] = [
     category: 'Public',
     subtitle: 'Mission-aligned public equities',
     summary:
-      'Illustrative, public-equity allocation to mission-aligned companies — prototype only.',
+      'A diversified public-market strategy focused on space, communications, infrastructure, and advanced technology.',
     minimumInvestment: 5000,
     formattedMinimum: '$5,000',
     media: '/media/section-backgrounds/overview-earth.jpg',
     overview:
-      'Public Equity Fund (prototype) offers illustrative exposure to mission-aligned public companies.',
+      'The Public Equity Fund is designed to provide diversified exposure to publicly traded companies supporting space and global infrastructure.',
     investmentThesis:
-      'Public equities with mission alignment and long-term growth assumptions — illustrative only.',
+      'A diversified portfolio may provide access to long-term growth across satellite communications, aerospace, infrastructure, and advanced technology.',
     highlights: [
-      'Illustrative: public market access',
-      'Prototype: diversified mission exposure',
-      'Example only: passive & active mix'
+      'Diversified public-market exposure',
+      'Focus on mission-aligned industries',
+      'Combination of active and long-term allocation strategies'
     ],
     risks: [
-      'Illustrative: market volatility',
-      'Prototype: no guarantee of performance',
-      'Example only: scenario-based projections'
+      'Public-market volatility',
+      'Sector concentration risk',
+      'Returns are not guaranteed'
     ],
     metrics: [
-      { label: 'Illustrative Target Return', value: '6%–12%', note: 'Prototype' },
-      { label: 'Example Allocation', value: 'Core satellite & infra', note: 'Illustrative' }
+      {
+        label: 'Target Return',
+        value: '6%–12%',
+        note: 'Target range; not guaranteed'
+      },
+      {
+        label: 'Core Allocation',
+        value: 'Satellite & Infrastructure',
+        note: 'Subject to market conditions'
+      }
     ],
-    status: 'Prototype — Informational',
-    prototypeDisclaimer:
-      'Prototype data and illustrative figures only. No real securities are offered or sold through this website.'
+    status: 'Coming Soon'
   }
 ]
 
 export function getOpportunityBySlug(slug: string) {
-  return OPPORTUNITIES.find((o) => o.slug === slug) ?? null
+  return OPPORTUNITIES.find((opportunity) => opportunity.slug === slug) ?? null
 }
 
 export function listOpportunitySlugs() {
-  return OPPORTUNITIES.map((o) => o.slug)
+  return OPPORTUNITIES.map((opportunity) => opportunity.slug)
 }

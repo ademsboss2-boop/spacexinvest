@@ -48,10 +48,6 @@ export default function PlatformHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <span className="border border-white/15 bg-white/5 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
-            Demo Mode
-          </span>
-
           <Link href="/login" className="btn btn-ghost">
             Log in
           </Link>
@@ -82,10 +78,6 @@ export default function PlatformHeader() {
             aria-label="Mobile platform navigation"
             className="mx-auto flex max-w-[1200px] flex-col gap-2"
           >
-            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
-              Demo Mode
-            </div>
-
             {LINKS.map((link) => (
               <Link
                 key={link.href}

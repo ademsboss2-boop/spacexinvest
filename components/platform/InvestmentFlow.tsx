@@ -3,9 +3,8 @@
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import type { Opportunity } from '../../lib/opportunities'
-import PrototypeNotice from './PrototypeNotice'
 
-type DemoInvestmentFlowProps = {
+type InvestmentFlowProps = {
   opportunity: Opportunity
 }
 
@@ -19,9 +18,9 @@ function formatCurrency(value: number) {
   }).format(value)
 }
 
-export default function DemoInvestmentFlow({
+export default function InvestmentFlow({
   opportunity
-}: DemoInvestmentFlowProps) {
+}: InvestmentFlowProps) {
   const [step, setStep] = useState<Step>(1)
   const [amount, setAmount] = useState(String(opportunity.minimumInvestment))
   const [error, setError] = useState('')
@@ -41,7 +40,7 @@ export default function DemoInvestmentFlow({
   function continueToReview() {
     if (numericAmount < opportunity.minimumInvestment) {
       setError(
-        `The demo amount must be at least ${opportunity.formattedMinimum}.`
+        `The investment amount must be at least ${opportunity.formattedMinimum}.`
       )
       return
     }
@@ -50,8 +49,8 @@ export default function DemoInvestmentFlow({
     setStep(2)
   }
 
-  function confirmDemoInvestment() {
-    const nextReference = `SX-DEMO-${Date.now()
+  function confirmInvestment() {
+    const nextReference = `SX-INV-${Date.now()
       .toString(36)
       .toUpperCase()}`
 
@@ -59,7 +58,7 @@ export default function DemoInvestmentFlow({
 
     try {
       sessionStorage.setItem(
-        'spacex-invest-demo-allocation',
+        'spacex-invest-allocation',
         JSON.stringify({
           opportunity: opportunity.title,
           amount: numericAmount,
@@ -67,7 +66,7 @@ export default function DemoInvestmentFlow({
         })
       )
     } catch {
-      // Session storage may be unavailable. The prototype still works.
+      // Session storage may be unavailable.
     }
 
     setStep(3)
@@ -75,16 +74,11 @@ export default function DemoInvestmentFlow({
 
   return (
     <div className="mx-auto max-w-4xl">
-      <PrototypeNotice>
-        Prototype transaction only. No money has been transferred and no
-        security has been purchased.
-      </PrototypeNotice>
-
       <div className="mt-6 border border-white/10 bg-white/5 p-6 backdrop-blur-md sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
-              Demo Investment
+              Investment
             </p>
 
             <h1 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
@@ -98,21 +92,21 @@ export default function DemoInvestmentFlow({
         {step === 1 ? (
           <div className="py-8">
             <h2 className="text-xl font-semibold text-white">
-              Choose a demo amount
+              Choose an investment amount
             </h2>
 
             <p className="mt-3 text-sm leading-relaxed text-white/55">
-              The illustrative minimum for this opportunity is{' '}
+              The minimum investment for this opportunity is{' '}
               {opportunity.formattedMinimum}. No payment details will be
               requested.
             </p>
 
             <div className="mt-7">
               <label
-                htmlFor="demo-amount"
+                htmlFor="investment-amount"
                 className="text-sm font-medium text-white"
               >
-                Demo allocation amount
+                Investment amount
               </label>
 
               <div className="relative mt-2">
@@ -121,7 +115,7 @@ export default function DemoInvestmentFlow({
                 </span>
 
                 <input
-                  id="demo-amount"
+                  id="investment-amount"
                   type="number"
                   min={opportunity.minimumInvestment}
                   step="1000"
@@ -169,7 +163,7 @@ export default function DemoInvestmentFlow({
         {step === 2 ? (
           <div className="py-8">
             <h2 className="text-xl font-semibold text-white">
-              Review demo allocation
+              Review investment
             </h2>
 
             <div className="mt-7 divide-y divide-white/10 border-y border-white/10">
@@ -181,7 +175,7 @@ export default function DemoInvestmentFlow({
               </div>
 
               <div className="flex justify-between gap-6 py-5">
-                <span className="text-sm text-white/45">Demo amount</span>
+                <span className="text-sm text-white/45">Investment amount</span>
                 <span className="text-sm font-medium text-white">
                   {formatCurrency(numericAmount)}
                 </span>
@@ -190,7 +184,7 @@ export default function DemoInvestmentFlow({
               <div className="flex justify-between gap-6 py-5">
                 <span className="text-sm text-white/45">Allocation type</span>
                 <span className="text-sm font-medium text-white">
-                  Prototype one-time allocation
+                  One-time allocation
                 </span>
               </div>
 
@@ -208,8 +202,8 @@ export default function DemoInvestmentFlow({
             </div>
 
             <p className="mt-6 text-sm leading-relaxed text-white/55">
-              Confirming this step records only a temporary demo allocation.
-              Nothing will be charged, transferred, bought, or sold.
+              Review the information above before confirming. No payment
+              information is required at this stage.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -223,10 +217,10 @@ export default function DemoInvestmentFlow({
 
               <button
                 type="button"
-                onClick={confirmDemoInvestment}
+                onClick={confirmInvestment}
                 className="btn btn-primary"
               >
-                Confirm Demo Investment
+                Confirm Investment
               </button>
             </div>
           </div>
@@ -239,22 +233,21 @@ export default function DemoInvestmentFlow({
             </div>
 
             <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
-              Demo allocation recorded
+              Investment submitted
             </p>
 
             <h2 className="mt-3 text-3xl font-semibold text-white">
-              Prototype confirmation
+              Confirmation
             </h2>
 
             <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/55">
-              A temporary demo allocation of {formatCurrency(numericAmount)} was
-              recorded for {opportunity.title}. No money or securities were
-              involved.
+              Your investment request for {formatCurrency(numericAmount)} in
+              {opportunity.title} has been prepared. No payment was processed.
             </p>
 
             <div className="mx-auto mt-7 max-w-md border border-white/10 bg-black/35 p-5 text-left">
               <div className="text-xs uppercase tracking-[0.18em] text-white/40">
-                Prototype reference
+                Reference
               </div>
 
               <div className="mt-2 break-all font-mono text-sm text-white">
@@ -264,7 +257,7 @@ export default function DemoInvestmentFlow({
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/dashboard" className="btn btn-primary">
-                View Demo Dashboard
+                View Dashboard
               </Link>
 
               <Link

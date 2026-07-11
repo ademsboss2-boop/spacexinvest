@@ -6,9 +6,9 @@ import Container from './ui/Container'
 import { motion, useReducedMotion } from 'framer-motion'
 
 const STATS = [
-  { label: 'Active Opportunities', value: '12' },
+  { label: 'Active Opportunities', value: '3' },
   { label: 'Minimum Investment', value: '$5,000' },
-  { label: 'Illustrative Target Range', value: '14%–22%' }
+  { label: 'Target Range', value: '6%–22%' }
 ]
 
 export default function InvestmentOverview() {
@@ -89,8 +89,7 @@ export default function InvestmentOverview() {
           </div>
 
           <p className="mt-5 text-xs text-white/35">
-            Illustrative prototype figures only. Not an offer, guarantee, or
-            investment forecast.
+            Target ranges are subject to risk and are not guaranteed.
           </p>
         </div>
       </Container>

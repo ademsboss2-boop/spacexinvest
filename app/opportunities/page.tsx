@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import PlatformHeader from '../../components/platform/PlatformHeader'
-import PrototypeNotice from '../../components/platform/PrototypeNotice'
+import PlatformFooter from '../../components/platform/PlatformFooter'
 import { OPPORTUNITIES } from '../../lib/opportunities'
 
 export default function OpportunitiesPage() {
@@ -32,17 +32,14 @@ export default function OpportunitiesPage() {
           </p>
 
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold uppercase leading-[0.96] tracking-tight md:text-7xl">
-            Explore Demo Opportunities
+            Explore Opportunities
           </h1>
 
           <p className="mt-6 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
-            Review fictional, mission-aligned opportunities built exclusively
-            for the SpaceX Invest competition prototype.
+            Review mission-aligned opportunities across private and public
+            markets.
           </p>
 
-          <div className="mt-8 max-w-3xl">
-            <PrototypeNotice compact />
-          </div>
         </div>
       </section>
 
@@ -59,7 +56,7 @@ export default function OpportunitiesPage() {
                 <div className="relative h-64 overflow-hidden bg-[#080808]">
                   <Image
                     src={opportunity.media}
-                    alt={`${opportunity.title} prototype opportunity`}
+                    alt={`${opportunity.title} opportunity`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 33vw"
                     className={
@@ -91,7 +88,7 @@ export default function OpportunitiesPage() {
                   <div className="mt-6 flex items-end justify-between gap-5 border-t border-white/10 pt-5">
                     <div>
                       <div className="text-xs uppercase tracking-[0.15em] text-white/35">
-                        Demo Minimum
+                        Minimum Investment
                       </div>
 
                       <div className="mt-2 font-semibold text-white">
@@ -112,6 +109,7 @@ export default function OpportunitiesPage() {
           })}
         </div>
       </section>
+      <PlatformFooter />
     </main>
   )
 }

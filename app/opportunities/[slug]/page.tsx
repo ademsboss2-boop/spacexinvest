@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import PlatformHeader from '../../../components/platform/PlatformHeader'
-import PrototypeNotice from '../../../components/platform/PrototypeNotice'
+import PlatformFooter from '../../../components/platform/PlatformFooter'
 import {
   getOpportunityBySlug,
   listOpportunitySlugs
@@ -73,11 +73,11 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
               href={`/invest/${opportunity.slug}`}
               className="btn btn-primary"
             >
-              Start Demo Investment
+              Start Investing
             </Link>
 
             <div className="text-sm text-white/50">
-              Demo minimum: {opportunity.formattedMinimum}
+              Minimum investment: {opportunity.formattedMinimum}
             </div>
           </div>
         </div>
@@ -85,10 +85,6 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
 
       <section className="px-4 py-16 md:py-24">
         <div className="mx-auto max-w-[1200px]">
-          <PrototypeNotice>
-            {opportunity.prototypeDisclaimer}
-          </PrototypeNotice>
-
           <div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="space-y-6">
               <section className="border border-white/10 bg-white/5 p-6 backdrop-blur-md md:p-8">
@@ -113,7 +109,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
 
               <section className="border border-white/10 bg-white/5 p-6 backdrop-blur-md md:p-8">
                 <p className="text-xs uppercase tracking-[0.18em] text-white/40">
-                  Illustrative Highlights
+                  Investment Highlights
                 </p>
 
                 <ul className="mt-5 space-y-4">
@@ -135,7 +131,7 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
             <div className="space-y-6">
               <section className="border border-white/10 bg-white/5 p-6 backdrop-blur-md md:p-8">
                 <p className="text-xs uppercase tracking-[0.18em] text-white/40">
-                  Prototype Metrics
+                  Key Metrics
                 </p>
 
                 <div className="mt-5 divide-y divide-white/10 border-y border-white/10">
@@ -183,12 +179,13 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
                 href={`/invest/${opportunity.slug}`}
                 className="btn btn-primary w-full"
               >
-                Start Demo Investment
+                Start Investing
               </Link>
             </div>
           </div>
         </div>
       </section>
+      <PlatformFooter />
     </main>
   )
 }

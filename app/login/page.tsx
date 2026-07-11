@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import PlatformHeader from '../../components/platform/PlatformHeader'
+import PlatformFooter from '../../components/platform/PlatformFooter'
 import AuthForm from '../../components/platform/AuthForm'
 
 export default function LoginPage() {
@@ -18,7 +19,7 @@ export default function LoginPage() {
           </Link>
 
           <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
-            Demo Access
+            Investor Access
           </p>
 
           <h1 className="mt-3 text-4xl font-semibold uppercase tracking-tight md:text-6xl">
@@ -26,8 +27,7 @@ export default function LoginPage() {
           </h1>
 
           <p className="mt-4 text-sm leading-relaxed text-white/55">
-            Enter sample credentials to access the fictional investor
-            dashboard.
+            Enter your credentials to access the investor dashboard.
           </p>
 
           <div className="mt-8">
@@ -35,6 +35,7 @@ export default function LoginPage() {
           </div>
         </div>
       </section>
+      <PlatformFooter />
     </main>
   )
 }

@@ -1,7 +1,8 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
 import PlatformHeader from '../../../components/platform/PlatformHeader'
-import DemoInvestmentFlow from '../../../components/platform/DemoInvestmentFlow'
+import PlatformFooter from '../../../components/platform/PlatformFooter'
+import InvestmentFlow from '../../../components/platform/InvestmentFlow'
 import {
   getOpportunityBySlug,
   listOpportunitySlugs
@@ -26,8 +27,9 @@ export default async function InvestPage({ params }: PageProps) {
       <PlatformHeader />
 
       <section className="px-4 py-12 md:py-20">
-        <DemoInvestmentFlow opportunity={opportunity} />
+        <InvestmentFlow opportunity={opportunity} />
       </section>
+      <PlatformFooter />
     </main>
   )
 }

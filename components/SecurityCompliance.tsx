@@ -16,7 +16,7 @@ const ITEMS = [
   },
   {
     title: 'Investor Safeguards',
-    text: 'Prototype workflows designed around protection and transparency principles.'
+    text: 'Investor workflows designed around protection and transparency principles.'
   }
 ]
 
@@ -69,7 +69,7 @@ export default function SecurityCompliance() {
 
             <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
               Investor protections, system integrity, and operational
-              transparency remain central to the prototype experience.
+              transparency remain central to the platform experience.
             </p>
           </div>
 

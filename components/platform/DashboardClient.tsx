@@ -10,26 +10,25 @@ import {
   Tooltip
 } from 'recharts'
 import { OPPORTUNITIES } from '../../lib/opportunities'
-import PrototypeNotice from './PrototypeNotice'
 
 const HOLDINGS = [
   {
     name: 'Starlink Growth Series',
     value: 35000,
     allocation: '46.7%',
-    label: 'Illustrative private allocation'
+    label: 'Private allocation'
   },
   {
     name: 'Launch Services Co-Invest',
     value: 25000,
     allocation: '33.3%',
-    label: 'Illustrative private allocation'
+    label: 'Private allocation'
   },
   {
     name: 'Public Equity Fund',
     value: 15000,
     allocation: '20.0%',
-    label: 'Illustrative public allocation'
+    label: 'Public allocation'
   }
 ]
 
@@ -46,15 +45,10 @@ function currency(value: number) {
 export default function DashboardClient() {
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-12 md:py-16">
-      <PrototypeNotice>
-        Demo portfolio with fictional and illustrative data only. Nothing shown
-        represents a real account, holding, balance, return, or transaction.
-      </PrototypeNotice>
-
       <div className="mt-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
-            Demo Portfolio
+            Portfolio
           </p>
 
           <h1 className="mt-3 text-4xl font-semibold uppercase tracking-tight text-white md:text-6xl">
@@ -62,8 +56,8 @@ export default function DashboardClient() {
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55 md:text-base">
-            Explore a fictional portfolio experience built for the SpaceX
-            Invest competition prototype.
+            Track allocations, review activity, and explore opportunities
+            across the SpaceX Invest platform.
           </p>
         </div>
 
@@ -73,14 +67,14 @@ export default function DashboardClient() {
       </div>
 
       <section
-        aria-label="Illustrative portfolio summary"
+        aria-label="Portfolio summary"
         className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
         {[
-          ['Portfolio Value', '$82,500', 'Illustrative total'],
-          ['Total Allocated', '$75,000', 'Prototype allocation'],
-          ['Available Balance', '$7,500', 'Demo balance'],
-          ['Illustrative Change', '+4.8%', 'Example only']
+          ['Portfolio Value', '$82,500', 'Portfolio total'],
+          ['Total Allocated', '$75,000', 'Current allocation'],
+          ['Available Balance', '$7,500', 'Available balance'],
+          ['Portfolio Change', '+4.8%', 'Current period']
         ].map(([label, value, note]) => (
           <div
             key={label}
@@ -107,11 +101,11 @@ export default function DashboardClient() {
                 Holdings
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-white">
-                Demo Allocations
+                Holdings
               </h2>
             </div>
 
-            <span className="text-xs text-white/35">Illustrative data</span>
+            <span className="text-xs text-white/35">Current portfolio</span>
           </div>
 
           <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
@@ -144,13 +138,13 @@ export default function DashboardClient() {
           </p>
 
           <h2 className="mt-2 text-2xl font-semibold text-white">
-            Illustrative Distribution
+            Portfolio Allocation
           </h2>
 
           <div
             className="mt-6 h-64"
             role="img"
-            aria-label="Illustrative allocation chart: Starlink 46.7 percent, Launch Services 33.3 percent, Public Equity Fund 20 percent."
+            aria-label="Portfolio allocation chart: Starlink 46.7 percent, Launch Services 33.3 percent, Public Equity Fund 20 percent."
           >
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -212,14 +206,14 @@ export default function DashboardClient() {
           </p>
 
           <h2 className="mt-2 text-2xl font-semibold text-white">
-            Prototype Timeline
+            Recent Activity
           </h2>
 
           <div className="mt-7 divide-y divide-white/10 border-y border-white/10">
             {[
-              ['Demo allocation reviewed', 'Today', '$25,000 example'],
-              ['Portfolio summary generated', 'Yesterday', 'Prototype report'],
-              ['Demo account created', 'Jul 10', 'No data stored']
+              ['Allocation reviewed', 'Today', '$25,000'],
+              ['Portfolio summary generated', 'Yesterday', 'Monthly report'],
+              ['Account created', 'Jul 10', 'Account setup']
             ].map(([activity, date, detail]) => (
               <div
                 key={activity}
@@ -263,7 +257,7 @@ export default function DashboardClient() {
                 </div>
 
                 <div className="mt-2 text-sm text-white/45">
-                  Demo minimum {opportunity.formattedMinimum}
+                  Minimum {opportunity.formattedMinimum}
                 </div>
               </Link>
             ))}

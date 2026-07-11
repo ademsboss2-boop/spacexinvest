@@ -16,7 +16,7 @@ const ITEMS = [
   },
   {
     title: 'Operational Access',
-    text: 'A prototype experience built around industry insight and connectivity.'
+    text: 'An investment experience built around industry insight and connectivity.'
   }
 ]
 

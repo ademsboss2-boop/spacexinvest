@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import PlatformHeader from '../../components/platform/PlatformHeader'
+import PlatformFooter from '../../components/platform/PlatformFooter'
 import AuthForm from '../../components/platform/AuthForm'
 
 export default function SignupPage() {
@@ -18,15 +19,15 @@ export default function SignupPage() {
           </Link>
 
           <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
-            Competition Prototype
+            Investor Access
           </p>
 
           <h1 className="mt-3 text-4xl font-semibold uppercase tracking-tight md:text-6xl">
-            Create Demo Access
+            Create Account
           </h1>
 
           <p className="mt-4 text-sm leading-relaxed text-white/55">
-            Use fictional sample information to preview the investor platform.
+            Create your SpaceX Invest access profile.
           </p>
 
           <div className="mt-8">
@@ -34,6 +35,7 @@ export default function SignupPage() {
           </div>
         </div>
       </section>
+      <PlatformFooter />
     </main>
   )
 }

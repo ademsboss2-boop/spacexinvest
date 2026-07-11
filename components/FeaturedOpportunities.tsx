@@ -55,7 +55,7 @@ export default function FeaturedOpportunities() {
 
             <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
               Selected mission-aligned offerings with clear entry points and
-              transparent prototype terms.
+              transparent terms.
             </p>
           </div>
 

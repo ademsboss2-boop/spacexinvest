@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
-import PrototypeNotice from './PrototypeNotice'
 
 type AuthMode = 'login' | 'signup'
 
@@ -30,11 +29,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
     const nextErrors: FormErrors = {}
 
     if (signup && displayName.trim().length < 2) {
-      nextErrors.displayName = 'Enter a sample display name.'
+      nextErrors.displayName = 'Enter your display name.'
     }
 
     if (!email.includes('@') || !email.includes('.')) {
-      nextErrors.email = 'Enter a valid sample email address.'
+      nextErrors.email = 'Enter a valid email address.'
     }
 
     if (password.length < 8) {
@@ -46,7 +45,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
     }
 
     if (signup && !acceptedTerms) {
-      nextErrors.terms = 'Confirm that you understand this is a prototype.'
+      nextErrors.terms = 'Confirm that you agree to the terms.'
     }
 
     setErrors(nextErrors)
@@ -63,12 +62,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   return (
     <div className="w-full max-w-xl">
-      <PrototypeNotice>
-        {signup
-          ? 'Competition prototype. Use sample information only. Nothing entered here is stored or transmitted.'
-          : 'Demo access only. Credentials are not stored or transmitted. Use sample information rather than personal information.'}
-      </PrototypeNotice>
-
       <form
         onSubmit={handleSubmit}
         noValidate
@@ -88,7 +81,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
               type="text"
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
-              placeholder="Demo Investor"
+              placeholder="Investor Name"
               autoComplete="name"
               className="mt-2 min-h-12 w-full border border-white/15 bg-black/45 px-4 text-white placeholder:text-white/30 focus:border-white/45 focus:outline-none"
               aria-invalid={Boolean(errors.displayName)}
@@ -118,7 +111,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="demo@example.com"
+            placeholder="investor@example.com"
             autoComplete="email"
             className="mt-2 min-h-12 w-full border border-white/15 bg-black/45 px-4 text-white placeholder:text-white/30 focus:border-white/45 focus:outline-none"
             aria-invalid={Boolean(errors.email)}
@@ -214,8 +207,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 />
 
                 <span>
-                  I understand this is a fictional competition prototype and
-                  does not create a real account.
+                  I agree to the Terms and Privacy Policy.
                 </span>
               </label>
 
@@ -227,11 +219,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
         ) : null}
 
         <button type="submit" className="btn btn-primary mt-7 w-full">
-          {signup ? 'Create Demo Account' : 'Enter Demo Dashboard'}
+          {signup ? 'Create Account' : 'Continue'}
         </button>
 
         <p className="mt-6 text-center text-sm text-white/50">
-          {signup ? 'Already have demo access?' : 'Need a demo account?'}{' '}
+          {signup ? 'Already have an account?' : 'Need an account?'}{' '}
           <Link
             href={signup ? '/login' : '/signup'}
             className="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white"
