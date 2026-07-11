@@ -111,7 +111,7 @@ export default function Nav() {
         {/* Logo */}
         <a href="#" aria-label="SpaceX Invest" className="flex items-center">
           <Image
-            src="/media/spacex-logo.png"
+            src="/media/spacex-logo-transparent.png"
             alt="SpaceX"
             width={220}
             height={32}
@@ -167,7 +167,7 @@ export default function Nav() {
               className="flex items-center justify-between p-6"
             >
               <Image
-                src="/media/spacex-logo.png"
+                src="/media/spacex-logo-transparent.png"
                 alt="SpaceX"
                 width={200}
                 height={30}
