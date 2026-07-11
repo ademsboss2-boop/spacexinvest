@@ -1,76 +1,122 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+
+const LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Opportunities', href: '/opportunities' },
+  { label: 'Dashboard', href: '/dashboard' }
+]
 
 export default function PlatformHeader() {
   const [open, setOpen] = useState(false)
-  const pathname = usePathname()
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 border-b border-white/6 bg-black/60 backdrop-blur-sm">
-      <div className="nav-inner flex items-center justify-between">
-        <Link href="/">
-          <a className="flex items-center">
-            <Image
-              src="/media/spacex-logo-transparent.png"
-              alt="SpaceX"
-              width={200}
-              height={28}
-              priority
-              className="h-8 w-auto"
-            />
-          </a>
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/85 text-white backdrop-blur-md">
+      <div className="mx-auto flex min-h-[72px] max-w-[1200px] items-center justify-between px-4">
+        <Link
+          href="/"
+          aria-label="SpaceX Invest home"
+          className="flex items-center"
+        >
+          <Image
+            src="/media/spacex-logo-transparent.png"
+            alt="SpaceX"
+            width={220}
+            height={32}
+            priority
+            className="h-8 w-auto object-contain md:h-9"
+          />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
-          <Link href="/">
-            <a className={`text-sm ${pathname === '/' ? 'text-white' : 'text-white/70'}`}>Home</a>
-          </Link>
-          <Link href="/opportunities">
-            <a className={`text-sm ${pathname?.startsWith('/opportunities') ? 'text-white' : 'text-white/70'}`}>Opportunities</a>
-          </Link>
-          <Link href="/dashboard">
-            <a className={`text-sm ${pathname === '/dashboard' ? 'text-white' : 'text-white/70'}`}>Dashboard</a>
-          </Link>
-          <span className="ml-3 px-2 py-1 text-xs uppercase tracking-widest text-white/60 bg-white/5 rounded-sm">Demo Mode</span>
+        <nav
+          aria-label="Platform navigation"
+          className="hidden items-center gap-8 md:flex"
+        >
+          {LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm text-white/65 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
-          <Link href="/login"><a className="text-sm text-white/70 hover:text-white">Log in</a></Link>
-          <Link href="/signup"><a className="ml-2 px-3 py-2 bg-white text-black rounded-sm text-sm font-semibold">Sign up</a></Link>
+        <div className="hidden items-center gap-3 md:flex">
+          <span className="border border-white/15 bg-white/5 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
+            Demo Mode
+          </span>
+
+          <Link href="/login" className="btn btn-ghost">
+            Log in
+          </Link>
+
+          <Link href="/signup" className="btn btn-primary">
+            Sign up
+          </Link>
         </div>
 
-        <div className="md:hidden">
-          <button onClick={() => setOpen(true)} aria-label="Open menu" className="p-2">
-            <Menu color="white" />
-          </button>
-        </div>
+        <button
+          type="button"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          aria-controls="platform-mobile-menu"
+          onClick={() => setOpen((current) => !current)}
+          className="flex min-h-11 min-w-11 items-center justify-center border border-white/10 text-white md:hidden"
+        >
+          {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+        </button>
       </div>
 
-      {open && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex flex-col p-6 md:hidden">
-          <div className="flex items-center justify-between">
-            <Image src="/media/spacex-logo-transparent.png" alt="SpaceX" width={160} height={26} />
-            <button onClick={() => setOpen(false)} aria-label="Close menu" className="p-2">
-              <X color="white" />
-            </button>
-          </div>
+      {open ? (
+        <div
+          id="platform-mobile-menu"
+          className="border-t border-white/10 bg-black/95 px-4 py-6 md:hidden"
+        >
+          <nav
+            aria-label="Mobile platform navigation"
+            className="mx-auto flex max-w-[1200px] flex-col gap-2"
+          >
+            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
+              Demo Mode
+            </div>
 
-          <nav className="mt-8 flex flex-col gap-6 items-start">
-            <Link href="/"><a className="text-xl">Home</a></Link>
-            <Link href="/opportunities"><a className="text-xl">Opportunities</a></Link>
-            <Link href="/dashboard"><a className="text-xl">Dashboard</a></Link>
-            <div className="mt-6 flex flex-col gap-3 w-full">
-              <Link href="/login"><a className="w-full text-center py-2 border border-white/10">Log in</a></Link>
-              <Link href="/signup"><a className="w-full text-center py-2 bg-white text-black font-semibold">Sign up</a></Link>
+            {LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="border-b border-white/10 py-4 text-lg text-white"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="btn btn-ghost"
+              >
+                Log in
+              </Link>
+
+              <Link
+                href="/signup"
+                onClick={() => setOpen(false)}
+                className="btn btn-primary"
+              >
+                Sign up
+              </Link>
             </div>
           </nav>
         </div>
-      )}
+      ) : null}
     </header>
   )
 }

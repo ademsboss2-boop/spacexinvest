@@ -157,8 +157,8 @@ export default function Nav() {
 
         {/* Desktop Buttons */}
         <div className="hidden md:flex items-center gap-4">
-          <Button variant="ghost">Log in</Button>
-          <Button variant="primary">Start Investing</Button>
+          <Button as="a" href="/login" variant="ghost">Log in</Button>
+          <Button as="a" href="/signup" variant="primary">Start Investing</Button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -220,11 +220,23 @@ export default function Nav() {
               ))}
 
               <div className="mt-8 flex flex-col gap-4 w-3/4 max-w-xs">
-                <Button variant="ghost" className="w-full">
+                <Button
+                  as="a"
+                  href="/login"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setOpen(false)}
+                >
                   Log in
                 </Button>
 
-                <Button variant="primary" className="w-full">
+                <Button
+                  as="a"
+                  href="/signup"
+                  variant="primary"
+                  className="w-full"
+                  onClick={() => setOpen(false)}
+                >
                   Start Investing
                 </Button>
               </div>
