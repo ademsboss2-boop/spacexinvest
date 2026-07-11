@@ -8,8 +8,10 @@ import Container from './ui/Container'
 
 type Props = {
   id?: string
+  sectionId?: string
   videoSrc?: string
   imageSrc?: string
+  imageAlt?: string
   poster?: string
   eyebrow?: string
   title: string
@@ -21,8 +23,10 @@ type Props = {
 
 export default function CinematicMediaSection({
   id,
+  sectionId,
   videoSrc,
   imageSrc,
+  imageAlt,
   poster,
   eyebrow,
   title,
@@ -45,14 +49,11 @@ export default function CinematicMediaSection({
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            // only auto-play if motion isn't reduced
             if (!reduce) {
-              // try play; catch promise rejection silently
               const p = video.play()
               if (p && typeof p.then === 'function') p.catch(() => {})
             }
           } else {
-            // pause when not in view
             try {
               video.pause()
             } catch {
@@ -85,8 +86,10 @@ export default function CinematicMediaSection({
   const alignmentClass =
     align === 'center' ? 'items-center text-center' : align === 'right' ? 'items-end text-right' : 'items-start text-left'
 
+  const sectionIdToUse = sectionId ?? id
+
   return (
-    <section id={id} ref={containerRef} className="relative w-full min-h-[90svh] md:min-h-[100svh] overflow-hidden bg-black">
+    <section id={sectionIdToUse} ref={containerRef} className="relative w-full min-h-[90svh] md:min-h-[100svh] overflow-hidden bg-black">
       {/* Video background (decorative) */}
       {videoSrc ? (
         <video
@@ -105,7 +108,7 @@ export default function CinematicMediaSection({
         <div className="absolute inset-0 w-full h-full">
           <Image
             src={imageSrc}
-            alt={title}
+            alt={imageAlt ?? title}
             fill
             sizes="(max-width: 640px) 100vw, 100vw"
             style={{ objectFit: 'cover' }}
