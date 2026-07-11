@@ -12,8 +12,8 @@ export default function Footer() {
               </div>
 
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/45">
-                Competition submission. This website does not process real
-                payments or securities transactions.
+                Investment transactions are not currently enabled on this
+                platform.
               </p>
             </div>
 
