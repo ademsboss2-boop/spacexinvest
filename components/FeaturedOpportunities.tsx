@@ -2,40 +2,10 @@
 
 import React from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import Container from './ui/Container'
 import { motion, useReducedMotion } from 'framer-motion'
-
-type Opportunity = {
-  id: string
-  title: string
-  subtitle: string
-  minInvestment: string
-  tag: string
-}
-
-const SAMPLE: Opportunity[] = [
-  {
-    id: '1',
-    title: 'Starlink Growth Series',
-    subtitle: 'Series A–B secondary access',
-    minInvestment: '$25,000',
-    tag: 'Private'
-  },
-  {
-    id: '2',
-    title: 'Launch Services Co-Invest',
-    subtitle: 'Growth capital for dedicated launch capacity',
-    minInvestment: '$10,000',
-    tag: 'Private'
-  },
-  {
-    id: '3',
-    title: 'Public Equity Fund',
-    subtitle: 'Mission-aligned public equities',
-    minInvestment: '$5,000',
-    tag: 'Public'
-  }
-]
+import { OPPORTUNITIES } from '../lib/opportunities'
 
 export default function FeaturedOpportunities() {
   const reduced = useReducedMotion()
@@ -58,7 +28,6 @@ export default function FeaturedOpportunities() {
         className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/85 to-[#050505]"
         aria-hidden="true"
       />
-
 
       <div
         aria-hidden="true"
@@ -91,9 +60,9 @@ export default function FeaturedOpportunities() {
           </div>
 
           <div className="mt-12 space-y-4">
-            {SAMPLE.map((opportunity, index) => (
+            {OPPORTUNITIES.map((opportunity, index) => (
               <motion.article
-                key={opportunity.id}
+                key={opportunity.slug}
                 initial={reduced ? false : { opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -106,7 +75,7 @@ export default function FeaturedOpportunities() {
                 <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <div className="text-xs uppercase tracking-[0.18em] text-white/40">
-                      {opportunity.tag}
+                      {opportunity.category}
                     </div>
 
                     <h3 className="mt-3 text-xl font-semibold tracking-tight md:text-2xl">
@@ -125,16 +94,16 @@ export default function FeaturedOpportunities() {
                       </div>
 
                       <div className="mt-2 text-lg font-semibold">
-                        {opportunity.minInvestment}
+                        {opportunity.formattedMinimum}
                       </div>
                     </div>
 
-                    <a
-                      href="#overview"
-                      className="border-b border-white/30 pb-1 text-sm text-white/65 transition-colors hover:border-white hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                    <Link
+                      href={`/opportunities/${opportunity.slug}`}
+                      className="ml-4 border-b border-white/30 pb-1 text-sm text-white/60 transition-colors hover:border-white hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                     >
                       Learn more
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </motion.article>
