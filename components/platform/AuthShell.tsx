@@ -196,7 +196,49 @@ export default function AuthShell({
             </Link>
           </div>
 
-          <div className="relative flex flex-1 items-center justify-center px-4 py-10 sm:px-8 lg:px-12 xl:px-20">
+          <div className="relative h-[215px] overflow-hidden border-b border-white/10 sm:h-[250px] lg:hidden">
+            <Image
+              src={backgroundImage}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover opacity-55"
+            />
+
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-black/35"
+            />
+
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-black/30"
+            />
+
+            <Image
+              src={floatingObject}
+              alt=""
+              width={430}
+              height={430}
+              priority
+              className={[
+                'pointer-events-none absolute object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]',
+                signup
+                  ? '-bottom-20 -right-20 w-[360px] opacity-85'
+                  : '-bottom-10 -right-16 w-[330px] opacity-65'
+              ].join(' ')}
+            />
+
+            <div className="absolute inset-x-0 bottom-0 z-10 p-5 sm:p-7">
+              <div className="inline-flex items-center gap-2 border border-white/15 bg-black/35 px-3 py-2 text-[10px] uppercase tracking-[0.18em] text-white/60 backdrop-blur-xl">
+                <Orbit size={13} aria-hidden="true" />
+                Private Investor Network
+              </div>
+            </div>
+          </div>
+
+          <div className="relative flex flex-1 items-center justify-center px-4 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12 xl:px-20">
             <div className="w-full max-w-[520px]">
               <div className="mb-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/35">
