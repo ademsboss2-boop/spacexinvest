@@ -1,9 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
+import { createClient } from '../../lib/supabase/client'
 
 const LINKS = [
   { label: 'Home', href: '/' },
@@ -12,7 +14,66 @@ const LINKS = [
 ]
 
 export default function PlatformHeader() {
+  const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
+
   const [open, setOpen] = useState(false)
+  const [authenticated, setAuthenticated] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  useEffect(() => {
+    let active = true
+
+    async function checkAuthentication() {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
+
+      if (active) {
+        setAuthenticated(Boolean(user))
+        setAuthChecked(true)
+      }
+    }
+
+    checkAuthentication()
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) {
+        setAuthenticated(Boolean(session?.user))
+        setAuthChecked(true)
+      }
+    })
+
+    return () => {
+      active = false
+      subscription.unsubscribe()
+    }
+  }, [supabase])
+
+  async function handleLogout() {
+    setLoggingOut(true)
+
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      setLoggingOut(false)
+      window.alert('Unable to log out. Please try again.')
+      return
+    }
+
+    setAuthenticated(false)
+    setOpen(false)
+
+    router.replace('/login')
+    router.refresh()
+  }
+
+  const visibleLinks = authenticated
+    ? LINKS
+    : LINKS.filter((link) => link.href !== '/dashboard')
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/85 text-white backdrop-blur-md">
@@ -36,7 +97,7 @@ export default function PlatformHeader() {
           aria-label="Platform navigation"
           className="hidden items-center gap-8 md:flex"
         >
-          {LINKS.map((link) => (
+          {visibleLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -47,14 +108,32 @@ export default function PlatformHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <Link href="/login" className="btn btn-ghost">
-            Log in
-          </Link>
+        <div className="hidden min-w-[182px] items-center justify-end gap-3 md:flex">
+          {!authChecked ? (
+            <div
+              aria-label="Checking account"
+              className="h-11 w-[182px] animate-pulse border border-white/5 bg-white/[0.03]"
+            />
+          ) : authenticated ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="btn btn-ghost disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loggingOut ? 'Logging out…' : 'Log out'}
+            </button>
+          ) : (
+            <>
+              <Link href="/login" className="btn btn-ghost">
+                Log in
+              </Link>
 
-          <Link href="/signup" className="btn btn-primary">
-            Sign up
-          </Link>
+              <Link href="/signup" className="btn btn-primary">
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -78,7 +157,7 @@ export default function PlatformHeader() {
             aria-label="Mobile platform navigation"
             className="mx-auto flex max-w-[1200px] flex-col gap-2"
           >
-            {LINKS.map((link) => (
+            {visibleLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -89,23 +168,36 @@ export default function PlatformHeader() {
               </Link>
             ))}
 
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="btn btn-ghost"
-              >
-                Log in
-              </Link>
+            {authChecked ? (
+              authenticated ? (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="btn btn-ghost mt-5 w-full disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {loggingOut ? 'Logging out…' : 'Log out'}
+                </button>
+              ) : (
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="btn btn-ghost"
+                  >
+                    Log in
+                  </Link>
 
-              <Link
-                href="/signup"
-                onClick={() => setOpen(false)}
-                className="btn btn-primary"
-              >
-                Sign up
-              </Link>
-            </div>
+                  <Link
+                    href="/signup"
+                    onClick={() => setOpen(false)}
+                    className="btn btn-primary"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              )
+            ) : null}
           </nav>
         </div>
       ) : null}
