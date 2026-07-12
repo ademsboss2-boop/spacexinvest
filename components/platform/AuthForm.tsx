@@ -82,6 +82,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
     const supabase = createClient()
     const destination = getDestination()
+    const publicOrigin =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ??
+      window.location.origin
 
     try {
       if (signup) {
@@ -92,7 +95,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             data: {
               display_name: displayName.trim()
             },
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(destination)}`
+            emailRedirectTo: `${publicOrigin}/auth/callback?next=${encodeURIComponent(destination)}`
           }
         })
 
