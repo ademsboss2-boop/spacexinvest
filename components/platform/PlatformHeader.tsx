@@ -103,6 +103,10 @@ export default function PlatformHeader() {
   const visibleLinks = authenticated
     ? [
         ...LINKS,
+        {
+          label: 'Settings',
+          href: '/dashboard/settings'
+        },
         ...(staffRole
           ? [
               {
