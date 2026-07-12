@@ -3,7 +3,16 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff } from 'lucide-react'
+import {
+  ArrowRight,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Loader2,
+  LockKeyhole,
+  Mail,
+  UserRound
+} from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
 
 type AuthMode = 'login' | 'signup'
@@ -13,6 +22,9 @@ type AuthFormProps = {
 }
 
 type FormErrors = Record<string, string>
+
+const inputClass =
+  'min-h-14 w-full border border-white/10 bg-black/45 pl-12 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/25 hover:border-white/20 focus:border-white/40 focus:bg-black/65'
 
 export default function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter()
@@ -71,7 +83,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
     return '/dashboard'
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault()
 
     if (!validate()) return
@@ -95,7 +109,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
             data: {
               display_name: displayName.trim()
             },
-            emailRedirectTo: `${publicOrigin}/auth/callback?next=${encodeURIComponent(destination)}`
+            emailRedirectTo: `${publicOrigin}/auth/callback?next=${encodeURIComponent(
+              destination
+            )}`
           }
         })
 
@@ -116,10 +132,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
         return
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password
-      })
+      const { error } =
+        await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password
+        })
 
       if (error) {
         setSubmitError(error.message)
@@ -137,16 +154,34 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   if (successMessage) {
     return (
-      <div className="border border-white/10 bg-white/5 p-7 text-white backdrop-blur-md">
-        <h2 className="text-2xl font-semibold">Check your email</h2>
+      <div className="relative overflow-hidden border border-white/10 bg-white/[0.035] p-7 backdrop-blur-xl sm:p-9">
+        <div
+          aria-hidden="true"
+          className="absolute right-0 top-0 h-44 w-44 translate-x-1/3 -translate-y-1/3 rounded-full bg-white/[0.05] blur-3xl"
+        />
 
-        <p className="mt-4 text-sm leading-relaxed text-white/60">
-          {successMessage}
-        </p>
+        <div className="relative">
+          <div className="flex h-14 w-14 items-center justify-center border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
+            <CheckCircle2 size={23} aria-hidden="true" />
+          </div>
 
-        <Link href="/login" className="btn btn-primary mt-7">
-          Return to Login
-        </Link>
+          <p className="mt-7 text-xs uppercase tracking-[0.2em] text-white/35">
+            Verification Required
+          </p>
+
+          <h3 className="mt-3 text-3xl font-semibold uppercase tracking-tight text-white">
+            Check Your Email
+          </h3>
+
+          <p className="mt-5 text-sm leading-7 text-white/50">
+            {successMessage}
+          </p>
+
+          <Link href="/login" className="btn btn-primary mt-8 w-full">
+            Return to Login
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     )
   }
@@ -155,154 +190,242 @@ export default function AuthForm({ mode }: AuthFormProps) {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="border border-white/10 bg-white/5 p-6 backdrop-blur-md sm:p-8"
+      className="border border-white/10 bg-white/[0.025] p-5 backdrop-blur-xl sm:p-8"
     >
-      {signup ? (
+      <div className="space-y-5">
+        {signup ? (
+          <div>
+            <label
+              htmlFor="display-name"
+              className="text-xs font-medium uppercase tracking-[0.14em] text-white/45"
+            >
+              Display name
+            </label>
+
+            <div className="relative mt-2">
+              <UserRound
+                size={17}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30"
+              />
+
+              <input
+                id="display-name"
+                type="text"
+                value={displayName}
+                onChange={(event) => {
+                  setDisplayName(event.target.value)
+                  setErrors((current) => ({
+                    ...current,
+                    displayName: ''
+                  }))
+                }}
+                placeholder="Investor name"
+                autoComplete="name"
+                className={inputClass}
+                aria-invalid={Boolean(errors.displayName)}
+              />
+            </div>
+
+            {errors.displayName ? (
+              <p className="mt-2 text-xs text-red-300">
+                {errors.displayName}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
         <div>
           <label
-            htmlFor="display-name"
-            className="text-sm font-medium text-white"
+            htmlFor="email"
+            className="text-xs font-medium uppercase tracking-[0.14em] text-white/45"
           >
-            Display name
+            Email address
           </label>
 
-          <input
-            id="display-name"
-            type="text"
-            value={displayName}
-            onChange={(event) => setDisplayName(event.target.value)}
-            placeholder="Investor Name"
-            autoComplete="name"
-            className="mt-2 min-h-12 w-full border border-white/15 bg-black/45 px-4 text-white placeholder:text-white/30 focus:border-white/45 focus:outline-none"
-            aria-invalid={Boolean(errors.displayName)}
-          />
+          <div className="relative mt-2">
+            <Mail
+              size={17}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30"
+            />
 
-          {errors.displayName ? (
-            <p className="mt-2 text-sm text-red-300">
-              {errors.displayName}
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value)
+                setErrors((current) => ({
+                  ...current,
+                  email: ''
+                }))
+              }}
+              placeholder="investor@example.com"
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              className={inputClass}
+              aria-invalid={Boolean(errors.email)}
+            />
+          </div>
+
+          {errors.email ? (
+            <p className="mt-2 text-xs text-red-300">
+              {errors.email}
+            </p>
+          ) : null}
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between gap-4">
+            <label
+              htmlFor="password"
+              className="text-xs font-medium uppercase tracking-[0.14em] text-white/45"
+            >
+              Password
+            </label>
+
+            {!signup ? (
+              <Link
+                href="/forgot-password"
+                className="text-xs text-white/35 transition-colors hover:text-white"
+              >
+                Forgot password?
+              </Link>
+            ) : null}
+          </div>
+
+          <div className="relative mt-2">
+            <LockKeyhole
+              size={17}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30"
+            />
+
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value)
+                setErrors((current) => ({
+                  ...current,
+                  password: ''
+                }))
+              }}
+              placeholder={
+                signup ? 'At least 8 characters' : 'Enter your password'
+              }
+              autoComplete={
+                signup ? 'new-password' : 'current-password'
+              }
+              className={`${inputClass} pr-14`}
+              aria-invalid={Boolean(errors.password)}
+            />
+
+            <button
+              type="button"
+              onClick={() =>
+                setShowPassword((current) => !current)
+              }
+              aria-label={
+                showPassword ? 'Hide password' : 'Show password'
+              }
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/35 transition-colors hover:text-white"
+            >
+              {showPassword ? (
+                <EyeOff size={17} aria-hidden="true" />
+              ) : (
+                <Eye size={17} aria-hidden="true" />
+              )}
+            </button>
+          </div>
+
+          {errors.password ? (
+            <p className="mt-2 text-xs text-red-300">
+              {errors.password}
+            </p>
+          ) : null}
+        </div>
+
+        {signup ? (
+          <div>
+            <label
+              htmlFor="confirm-password"
+              className="text-xs font-medium uppercase tracking-[0.14em] text-white/45"
+            >
+              Confirm password
+            </label>
+
+            <div className="relative mt-2">
+              <LockKeyhole
+                size={17}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30"
+              />
+
+              <input
+                id="confirm-password"
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(event) => {
+                  setConfirmPassword(event.target.value)
+                  setErrors((current) => ({
+                    ...current,
+                    confirmPassword: ''
+                  }))
+                }}
+                placeholder="Repeat your password"
+                autoComplete="new-password"
+                className={inputClass}
+                aria-invalid={Boolean(errors.confirmPassword)}
+              />
+            </div>
+
+            {errors.confirmPassword ? (
+              <p className="mt-2 text-xs text-red-300">
+                {errors.confirmPassword}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
+      {signup ? (
+        <div className="mt-6 border-y border-white/10 py-5">
+          <label className="flex cursor-pointer items-start gap-3 text-sm leading-6 text-white/45">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(event) => {
+                setAcceptedTerms(event.target.checked)
+                setErrors((current) => ({
+                  ...current,
+                  terms: ''
+                }))
+              }}
+              className="mt-1 h-4 w-4 shrink-0 accent-white"
+            />
+
+            <span>
+              I agree to the Terms of Access and Privacy Policy.
+            </span>
+          </label>
+
+          {errors.terms ? (
+            <p className="mt-2 text-xs text-red-300">
+              {errors.terms}
             </p>
           ) : null}
         </div>
       ) : null}
 
-      <div className={signup ? 'mt-5' : ''}>
-        <label htmlFor="email" className="text-sm font-medium text-white">
-          Email
-        </label>
-
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="investor@example.com"
-          autoComplete="email"
-          className="mt-2 min-h-12 w-full border border-white/15 bg-black/45 px-4 text-white placeholder:text-white/30 focus:border-white/45 focus:outline-none"
-          aria-invalid={Boolean(errors.email)}
-        />
-
-        {errors.email ? (
-          <p className="mt-2 text-sm text-red-300">{errors.email}</p>
-        ) : null}
-      </div>
-
-      <div className="mt-5">
-        <label htmlFor="password" className="text-sm font-medium text-white">
-          Password
-        </label>
-
-        <div className="relative mt-2">
-          <input
-            id="password"
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="At least 8 characters"
-            autoComplete={signup ? 'new-password' : 'current-password'}
-            className="min-h-12 w-full border border-white/15 bg-black/45 px-4 pr-14 text-white placeholder:text-white/30 focus:border-white/45 focus:outline-none"
-            aria-invalid={Boolean(errors.password)}
-          />
-
-          <button
-            type="button"
-            onClick={() => setShowPassword((current) => !current)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/55 hover:text-white"
-          >
-            {showPassword ? (
-              <EyeOff size={18} aria-hidden="true" />
-            ) : (
-              <Eye size={18} aria-hidden="true" />
-            )}
-          </button>
-        </div>
-
-        {errors.password ? (
-          <p className="mt-2 text-sm text-red-300">{errors.password}</p>
-        ) : null}
-      </div>
-
-      {!signup ? (
-        <div className="mt-4 text-right">
-          <Link
-            href="/forgot-password"
-            className="text-sm text-white/50 underline decoration-white/20 underline-offset-4 hover:text-white"
-          >
-            Forgot password?
-          </Link>
-        </div>
-      ) : null}
-
-      {signup ? (
-        <>
-          <div className="mt-5">
-            <label
-              htmlFor="confirm-password"
-              className="text-sm font-medium text-white"
-            >
-              Confirm password
-            </label>
-
-            <input
-              id="confirm-password"
-              type={showPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              autoComplete="new-password"
-              className="mt-2 min-h-12 w-full border border-white/15 bg-black/45 px-4 text-white focus:border-white/45 focus:outline-none"
-              aria-invalid={Boolean(errors.confirmPassword)}
-            />
-
-            {errors.confirmPassword ? (
-              <p className="mt-2 text-sm text-red-300">
-                {errors.confirmPassword}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="mt-6">
-            <label className="flex cursor-pointer items-start gap-3 text-sm text-white/65">
-              <input
-                type="checkbox"
-                checked={acceptedTerms}
-                onChange={(event) => setAcceptedTerms(event.target.checked)}
-                className="mt-1 h-4 w-4 accent-white"
-              />
-
-              <span>I agree to the Terms and Privacy Policy.</span>
-            </label>
-
-            {errors.terms ? (
-              <p className="mt-2 text-sm text-red-300">{errors.terms}</p>
-            ) : null}
-          </div>
-        </>
-      ) : null}
-
       {submitError ? (
         <div
           role="alert"
-          className="mt-6 border border-red-400/25 bg-red-400/10 px-4 py-3 text-sm text-red-200"
+          aria-live="polite"
+          className="mt-6 border border-red-300/20 bg-red-300/[0.07] px-4 py-3 text-sm leading-6 text-red-200"
         >
           {submitError}
         </div>
@@ -311,22 +434,42 @@ export default function AuthForm({ mode }: AuthFormProps) {
       <button
         type="submit"
         disabled={submitting}
-        className="btn btn-primary mt-7 w-full disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn btn-primary mt-7 min-h-14 w-full gap-3 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {submitting
-          ? 'Please wait…'
-          : signup
-            ? 'Create Account'
-            : 'Continue'}
+        {submitting ? (
+          <>
+            <Loader2
+              size={17}
+              aria-hidden="true"
+              className="animate-spin"
+            />
+            Please wait
+          </>
+        ) : (
+          <>
+            {signup ? 'Create Private Account' : 'Enter Dashboard'}
+            <ArrowRight size={17} aria-hidden="true" />
+          </>
+        )}
       </button>
 
-      <p className="mt-6 text-center text-sm text-white/50">
-        {signup ? 'Already have an account?' : 'Need an account?'}{' '}
+      <div className="mt-6 flex items-center gap-4">
+        <span className="h-px flex-1 bg-white/10" />
+
+        <span className="text-[10px] uppercase tracking-[0.16em] text-white/25">
+          Secure Access
+        </span>
+
+        <span className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <p className="mt-6 text-center text-sm text-white/40">
+        {signup ? 'Already registered?' : 'Need an account?'}{' '}
         <Link
           href={signup ? '/login' : '/signup'}
-          className="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white"
+          className="font-medium text-white underline decoration-white/25 underline-offset-4 transition-colors hover:decoration-white"
         >
-          {signup ? 'Log in' : 'Sign up'}
+          {signup ? 'Log in' : 'Create one'}
         </Link>
       </p>
     </form>
