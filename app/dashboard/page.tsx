@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation'
 import PlatformHeader from '../../components/platform/PlatformHeader'
 import PlatformFooter from '../../components/platform/PlatformFooter'
 import DashboardClient, {
-  type DashboardApplication
+  type DashboardApplication,
+  type SavedOpportunity
 } from '../../components/platform/DashboardClient'
 import { createClient } from '../../lib/supabase/server'
 
@@ -20,6 +21,17 @@ type RawApplication = {
   } | null
 }
 
+type RawSavedOpportunity = {
+  created_at: string
+  opportunity: {
+    slug: string
+    title: string
+    category: string
+    status: string
+    minimum_investment: number | string
+  } | null
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient()
 
@@ -32,7 +44,11 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  const [profileResult, applicationsResult] = await Promise.all([
+  const [
+    profileResult,
+    applicationsResult,
+    savedOpportunitiesResult
+  ] = await Promise.all([
     supabase
       .from('profiles')
       .select('display_name')
@@ -53,7 +69,22 @@ export default async function DashboardPage() {
           category
         )
       `)
-      .order('submitted_at', { ascending: false })
+      .order('submitted_at', { ascending: false }),
+
+    supabase
+      .from('saved_opportunities')
+      .select(`
+        created_at,
+        opportunity:opportunities (
+          slug,
+          title,
+          category,
+          status,
+          minimum_investment
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
   ])
 
   const displayName =
@@ -75,6 +106,25 @@ export default async function DashboardPage() {
     })
   )
 
+  const rawSavedOpportunities =
+    (savedOpportunitiesResult.data ?? []) as unknown as RawSavedOpportunity[]
+
+  const savedOpportunities: SavedOpportunity[] =
+    rawSavedOpportunities.map((saved) => ({
+      savedAt: saved.created_at,
+      opportunity: saved.opportunity
+        ? {
+            slug: saved.opportunity.slug,
+            title: saved.opportunity.title,
+            category: saved.opportunity.category,
+            status: saved.opportunity.status,
+            minimumInvestment: Number(
+              saved.opportunity.minimum_investment
+            )
+          }
+        : null
+    }))
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-black via-[#060606] to-black text-white">
       <PlatformHeader />
@@ -82,6 +132,7 @@ export default async function DashboardPage() {
       <DashboardClient
         displayName={displayName}
         applications={applications}
+        savedOpportunities={savedOpportunities}
       />
 
       <PlatformFooter />
