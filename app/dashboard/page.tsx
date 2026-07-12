@@ -126,11 +126,12 @@ export default async function DashboardPage() {
     }))
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-black via-[#060606] to-black text-white">
+    <main className="min-h-screen bg-black text-white">
       <PlatformHeader />
 
       <DashboardClient
         displayName={displayName}
+        email={user.email ?? ''}
         applications={applications}
         savedOpportunities={savedOpportunities}
       />
