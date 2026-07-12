@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import PlatformHeader from '../../../components/platform/PlatformHeader'
 import PlatformFooter from '../../../components/platform/PlatformFooter'
+import SaveOpportunityButton from '../../../components/platform/SaveOpportunityButton'
+import { createClient } from '../../../lib/supabase/server'
 import {
   getOpportunityBySlug,
   listOpportunitySlugs
@@ -22,6 +24,31 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
   const opportunity = getOpportunityBySlug(slug)
 
   if (!opportunity) notFound()
+
+  const supabase = await createClient()
+
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
+  const { data: opportunityRecord } = await supabase
+    .from('opportunities')
+    .select('id')
+    .eq('slug', opportunity.slug)
+    .maybeSingle()
+
+  let initialSaved = false
+
+  if (user && opportunityRecord?.id) {
+    const { data: savedRecord } = await supabase
+      .from('saved_opportunities')
+      .select('opportunity_id')
+      .eq('user_id', user.id)
+      .eq('opportunity_id', opportunityRecord.id)
+      .maybeSingle()
+
+    initialSaved = Boolean(savedRecord)
+  }
 
   const transparentObject = opportunity.media.endsWith('.png')
 
@@ -75,6 +102,13 @@ export default async function OpportunityDetailPage({ params }: PageProps) {
             >
               Start Investing
             </Link>
+
+            <SaveOpportunityButton
+              opportunityId={opportunityRecord?.id ?? null}
+              opportunitySlug={opportunity.slug}
+              initialSaved={initialSaved}
+              authenticated={Boolean(user)}
+            />
 
             <div className="text-sm text-white/50">
               Minimum investment: {opportunity.formattedMinimum}
