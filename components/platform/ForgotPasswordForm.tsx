@@ -24,16 +24,10 @@ export default function ForgotPasswordForm() {
     setError('')
 
     const supabase = createClient()
-    const publicOrigin =
-      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ??
-      window.location.origin
 
     const { error: resetError } =
       await supabase.auth.resetPasswordForEmail(
-        email.trim(),
-        {
-          redirectTo: `${publicOrigin}/auth/recovery`
-        }
+        email.trim()
       )
 
     setSubmitting(false)
