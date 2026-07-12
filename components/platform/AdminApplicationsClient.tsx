@@ -71,6 +71,10 @@ const STATUS_OPTIONS: Array<{
   { value: 'cancelled', label: 'Cancelled' }
 ]
 
+const REVIEW_DECISION_OPTIONS = STATUS_OPTIONS.filter(
+  (status) => status.value !== 'draft'
+)
+
 const CHART_COLORS = [
   '#ffffff',
   '#a3a3a3',
@@ -176,6 +180,10 @@ export default function AdminApplicationsClient({
     useState('all')
 
   const [searchQuery, setSearchQuery] = useState('')
+
+  const [reviewNotes, setReviewNotes] = useState<
+    Record<string, string>
+  >({})
 
   const analytics = useMemo(() => {
     const totalRequested = applications.reduce(
@@ -360,10 +368,17 @@ export default function AdminApplicationsClient({
       selectedStatuses[application.id] ??
       application.status
 
-    if (nextStatus === application.status) {
+    const reviewNote =
+      (reviewNotes[application.id] ?? '').trim()
+
+    const statusChanged =
+      nextStatus !== application.status
+
+    if (!statusChanged && !reviewNote) {
       setMessages((current) => ({
         ...current,
-        [application.id]: 'No status change selected.'
+        [application.id]:
+          'Select a new status or enter an internal note.'
       }))
       return
     }
@@ -383,27 +398,64 @@ export default function AdminApplicationsClient({
     const supabase = createClient()
 
     try {
-      const { data, error } = await supabase
-        .from('investment_applications')
-        .update({
-          status: nextStatus
-        })
-        .eq('id', application.id)
-        .select('id, status')
-        .single()
+      if (!statusChanged) {
+        const { error } = await supabase.rpc(
+          'add_application_review_note',
+          {
+            p_application_id: application.id,
+            p_note: reviewNote
+          }
+        )
 
-      if (error || !data) {
+        if (error) {
+          setErrors((current) => ({
+            ...current,
+            [application.id]:
+              error.message ??
+              'The internal review note could not be added.'
+          }))
+          return
+        }
+
+        setReviewNotes((current) => ({
+          ...current,
+          [application.id]: ''
+        }))
+
+        setMessages((current) => ({
+          ...current,
+          [application.id]:
+            'Internal review note added successfully.'
+        }))
+
+        return
+      }
+
+      const { data, error } = await supabase.rpc(
+        'review_application',
+        {
+          p_application_id: application.id,
+          p_new_status: nextStatus,
+          p_note: reviewNote || null
+        }
+      )
+
+      const result = Array.isArray(data)
+        ? data[0]
+        : data
+
+      if (error || !result) {
         setErrors((current) => ({
           ...current,
           [application.id]:
             error?.message ??
-            'The application status could not be updated.'
+            'The application review could not be saved.'
         }))
         return
       }
 
       const updatedStatus =
-        data.status as ReviewStatus
+        result.updated_status as ReviewStatus
 
       setApplications((current) =>
         current.map((item) =>
@@ -421,17 +473,26 @@ export default function AdminApplicationsClient({
         [application.id]: updatedStatus
       }))
 
+      setReviewNotes((current) => ({
+        ...current,
+        [application.id]: ''
+      }))
+
       setMessages((current) => ({
         ...current,
-        [application.id]: `Status updated to ${formatStatus(
-          updatedStatus
-        )}.`
+        [application.id]: reviewNote
+          ? `Status updated to ${formatStatus(
+              updatedStatus
+            )}. Internal note added.`
+          : `Status updated to ${formatStatus(
+              updatedStatus
+            )}.`
       }))
     } catch {
       setErrors((current) => ({
         ...current,
         [application.id]:
-          'Something went wrong while updating the application.'
+          'Something went wrong while saving the application review.'
       }))
     } finally {
       setUpdatingId(null)
@@ -981,6 +1042,12 @@ export default function AdminApplicationsClient({
               const hasChanged =
                 selectedStatus !== application.status
 
+              const reviewNote =
+                reviewNotes[application.id] ?? ''
+
+              const hasNote =
+                reviewNote.trim().length > 0
+
               return (
                 <article
                   key={application.id}
@@ -1088,7 +1155,7 @@ export default function AdminApplicationsClient({
                         }}
                         className="mt-3 min-h-12 w-full border border-white/10 bg-black px-4 text-sm text-white outline-none focus:border-white/35 disabled:opacity-50"
                       >
-                        {STATUS_OPTIONS.map((status) => (
+                        {REVIEW_DECISION_OPTIONS.map((status) => (
                           <option
                             key={status.value}
                             value={status.value}
@@ -1098,9 +1165,50 @@ export default function AdminApplicationsClient({
                         ))}
                       </select>
 
+                      <label
+                        htmlFor={`review-note-${application.id}`}
+                        className="mt-6 block text-xs uppercase tracking-[0.14em] text-white/40"
+                      >
+                        Internal review note
+                      </label>
+
+                      <textarea
+                        id={`review-note-${application.id}`}
+                        value={reviewNote}
+                        disabled={isUpdating}
+                        maxLength={2000}
+                        rows={4}
+                        onChange={(event) => {
+                          setReviewNotes((current) => ({
+                            ...current,
+                            [application.id]:
+                              event.target.value
+                          }))
+
+                          setMessages((current) => ({
+                            ...current,
+                            [application.id]: ''
+                          }))
+
+                          setErrors((current) => ({
+                            ...current,
+                            [application.id]: ''
+                          }))
+                        }}
+                        placeholder="Private note visible only to authorized reviewers"
+                        className="mt-3 w-full resize-y border border-white/10 bg-black px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-white/25 focus:border-white/35 disabled:opacity-50"
+                      />
+
+                      <div className="mt-2 text-right text-[10px] text-white/25">
+                        {reviewNote.length}/2000
+                      </div>
+
                       <button
                         type="button"
-                        disabled={isUpdating || !hasChanged}
+                        disabled={
+                          isUpdating ||
+                          (!hasChanged && !hasNote)
+                        }
                         onClick={() =>
                           updateStatus(application)
                         }
@@ -1113,10 +1221,14 @@ export default function AdminApplicationsClient({
                               aria-hidden="true"
                               className="animate-spin"
                             />
-                            Updating
+                            Saving Review
                           </>
+                        ) : hasChanged ? (
+                          reviewNote.trim()
+                            ? 'Update Status & Add Note'
+                            : 'Update Status'
                         ) : (
-                          'Update Status'
+                          'Add Internal Note'
                         )}
                       </button>
 
