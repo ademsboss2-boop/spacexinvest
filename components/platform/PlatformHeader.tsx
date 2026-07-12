@@ -8,7 +8,13 @@ import { Menu, X } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '../../lib/supabase/client'
 
-const LINKS = [
+type NavLink = {
+  label: string
+  href: string
+  badge?: number
+}
+
+const LINKS: NavLink[] = [
   { label: 'Home', href: '/' },
   { label: 'Opportunities', href: '/opportunities' },
   { label: 'Dashboard', href: '/dashboard' }
@@ -24,6 +30,7 @@ export default function PlatformHeader() {
     'reviewer' | 'admin' | null
   >(null)
   const [authChecked, setAuthChecked] = useState(false)
+  const [notificationCount, setNotificationCount] = useState(0)
   const [loggingOut, setLoggingOut] = useState(false)
 
   useEffect(() => {
@@ -34,17 +41,32 @@ export default function PlatformHeader() {
         if (active) {
           setAuthenticated(false)
           setStaffRole(null)
+          setNotificationCount(0)
           setAuthChecked(true)
         }
 
         return
       }
 
-      const { data: roleRecord } = await supabase
-        .from('staff_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .maybeSingle()
+      const [roleResult, unreadResult] =
+        await Promise.all([
+          supabase
+            .from('staff_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .maybeSingle(),
+
+          supabase
+            .from('application_activity')
+            .select('id', {
+              count: 'exact',
+              head: true
+            })
+            .eq('user_id', user.id)
+            .is('read_at', null)
+        ])
+
+      const roleRecord = roleResult.data
 
       const role =
         roleRecord?.role === 'reviewer' ||
@@ -55,6 +77,7 @@ export default function PlatformHeader() {
       if (active) {
         setAuthenticated(true)
         setStaffRole(role)
+        setNotificationCount(unreadResult.count ?? 0)
         setAuthChecked(true)
       }
     }
@@ -69,6 +92,15 @@ export default function PlatformHeader() {
 
     void checkAuthentication()
 
+    function handleActivityChanged() {
+      void checkAuthentication()
+    }
+
+    window.addEventListener(
+      'spacexinvest:activity-changed',
+      handleActivityChanged
+    )
+
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -77,6 +109,10 @@ export default function PlatformHeader() {
 
     return () => {
       active = false
+      window.removeEventListener(
+        'spacexinvest:activity-changed',
+        handleActivityChanged
+      )
       subscription.unsubscribe()
     }
   }, [supabase])
@@ -94,15 +130,21 @@ export default function PlatformHeader() {
 
     setAuthenticated(false)
     setStaffRole(null)
+    setNotificationCount(0)
     setOpen(false)
 
     router.replace('/login')
     router.refresh()
   }
 
-  const visibleLinks = authenticated
+  const visibleLinks: NavLink[] = authenticated
     ? [
         ...LINKS,
+        {
+          label: 'Activity',
+          href: '/dashboard/activity',
+          badge: notificationCount
+        },
         {
           label: 'Settings',
           href: '/dashboard/settings'
@@ -144,9 +186,15 @@ export default function PlatformHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-white/65 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="relative flex items-center gap-2 text-sm text-white/65 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               {link.label}
+
+              {link.badge ? (
+                <span className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-[10px] font-semibold text-black">
+                  {link.badge > 99 ? '99+' : link.badge}
+                </span>
+              ) : null}
             </Link>
           ))}
         </nav>
@@ -205,9 +253,15 @@ export default function PlatformHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="border-b border-white/10 py-4 text-lg text-white"
+                className="flex items-center justify-between border-b border-white/10 py-4 text-lg text-white"
               >
                 {link.label}
+
+                {link.badge ? (
+                  <span className="flex min-h-6 min-w-6 items-center justify-center rounded-full bg-white px-2 text-xs font-semibold text-black">
+                    {link.badge > 99 ? '99+' : link.badge}
+                  </span>
+                ) : null}
               </Link>
             ))}
 
