@@ -63,15 +63,12 @@ export default function SaveOpportunityButton({
       setSaved(nextSavedState)
 
       const result = nextSavedState
-        ? await supabase.from('saved_opportunities').upsert(
-            {
+        ? await supabase
+            .from('saved_opportunities')
+            .insert({
               user_id: user.id,
               opportunity_id: opportunityId
-            },
-            {
-              onConflict: 'user_id,opportunity_id'
-            }
-          )
+            })
         : await supabase
             .from('saved_opportunities')
             .delete()
@@ -79,6 +76,7 @@ export default function SaveOpportunityButton({
             .eq('opportunity_id', opportunityId)
 
       if (result.error) {
+        console.error('Saved opportunity operation failed:', result.error)
         setSaved(!nextSavedState)
         setError(
           nextSavedState
