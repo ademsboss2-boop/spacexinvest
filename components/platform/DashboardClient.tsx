@@ -24,9 +24,21 @@ export type DashboardApplication = {
   } | null
 }
 
+export type SavedOpportunity = {
+  savedAt: string
+  opportunity: {
+    slug: string
+    title: string
+    category: string
+    status: string
+    minimumInvestment: number
+  } | null
+}
+
 type DashboardClientProps = {
   displayName: string
   applications: DashboardApplication[]
+  savedOpportunities: SavedOpportunity[]
 }
 
 const CHART_COLORS = [
@@ -61,7 +73,8 @@ function formatDate(value: string) {
 
 export default function DashboardClient({
   displayName,
-  applications
+  applications,
+  savedOpportunities
 }: DashboardClientProps) {
   const totalRequested = applications.reduce(
     (total, application) => total + application.amount,
@@ -304,6 +317,83 @@ export default function DashboardClient({
           )}
         </section>
       </div>
+
+      <section className="mt-6 border border-white/10 bg-white/5 p-6 backdrop-blur-md md:p-8">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+              Watchlist
+            </p>
+
+            <h2 className="mt-2 text-2xl font-semibold text-white">
+              Saved Opportunities
+            </h2>
+          </div>
+
+          <div className="text-sm text-white/40">
+            {savedOpportunities.length}{' '}
+            {savedOpportunities.length === 1 ? 'opportunity' : 'opportunities'}
+          </div>
+        </div>
+
+        {savedOpportunities.length ? (
+          <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {savedOpportunities.map((saved) => {
+              if (!saved.opportunity) return null
+
+              return (
+                <Link
+                  key={saved.opportunity.slug}
+                  href={`/opportunities/${saved.opportunity.slug}`}
+                  className="group block border border-white/10 bg-black/25 p-5 transition-colors hover:bg-white/10"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="text-xs uppercase tracking-[0.16em] text-white/40">
+                      {saved.opportunity.category}
+                    </div>
+
+                    <span className="border border-white/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-white/40">
+                      {saved.opportunity.status}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-4 text-lg font-medium text-white transition-colors group-hover:text-white/80">
+                    {saved.opportunity.title}
+                  </h3>
+
+                  <div className="mt-5 border-t border-white/10 pt-4">
+                    <div className="text-xs uppercase tracking-[0.14em] text-white/35">
+                      Minimum Investment
+                    </div>
+
+                    <div className="mt-2 font-medium text-white">
+                      {currency(saved.opportunity.minimumInvestment)}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 text-xs text-white/30">
+                    Saved {formatDate(saved.savedAt)}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="mt-7 border border-dashed border-white/15 px-6 py-10 text-center">
+            <h3 className="text-lg font-medium text-white">
+              Your watchlist is empty
+            </h3>
+
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/45">
+              Save opportunities that you want to review again later.
+            </p>
+
+            <Link href="/opportunities" className="btn btn-primary mt-6">
+              Browse Opportunities
+            </Link>
+          </div>
+        )}
+      </section>
 
       <section className="mt-6 border border-white/10 bg-white/5 p-6 backdrop-blur-md md:p-8">
         <p className="text-xs uppercase tracking-[0.18em] text-white/40">
