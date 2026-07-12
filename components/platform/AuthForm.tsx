@@ -57,6 +57,20 @@ export default function AuthForm({ mode }: AuthFormProps) {
     return Object.keys(nextErrors).length === 0
   }
 
+  function getDestination() {
+    const next = new URLSearchParams(window.location.search).get('next')
+
+    if (
+      next &&
+      next.startsWith('/') &&
+      !next.startsWith('//')
+    ) {
+      return next
+    }
+
+    return '/dashboard'
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -67,6 +81,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
     setSuccessMessage('')
 
     const supabase = createClient()
+    const destination = getDestination()
 
     try {
       if (signup) {
@@ -77,7 +92,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             data: {
               display_name: displayName.trim()
             },
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(destination)}`
           }
         })
 
@@ -87,7 +102,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         }
 
         if (data.session) {
-          router.replace('/dashboard')
+          router.replace(destination)
           router.refresh()
           return
         }
@@ -108,7 +123,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         return
       }
 
-      router.replace('/dashboard')
+      router.replace(destination)
       router.refresh()
     } catch {
       setSubmitError('Something went wrong. Please try again.')
