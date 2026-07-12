@@ -29,7 +29,7 @@ export default function ForgotPasswordForm() {
       await supabase.auth.resetPasswordForEmail(
         email.trim(),
         {
-          redirectTo: `${window.location.origin}/auth/callback?next=/update-password`
+          redirectTo: `${window.location.origin}/auth/recovery`
         }
       )
 
