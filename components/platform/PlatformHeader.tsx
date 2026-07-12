@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
+import type { User } from '@supabase/supabase-js'
 import { createClient } from '../../lib/supabase/client'
 
 const LINKS = [
@@ -19,32 +20,59 @@ export default function PlatformHeader() {
 
   const [open, setOpen] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
+  const [staffRole, setStaffRole] = useState<
+    'reviewer' | 'admin' | null
+  >(null)
   const [authChecked, setAuthChecked] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
 
   useEffect(() => {
     let active = true
 
+    async function applyUser(user: User | null) {
+      if (!user) {
+        if (active) {
+          setAuthenticated(false)
+          setStaffRole(null)
+          setAuthChecked(true)
+        }
+
+        return
+      }
+
+      const { data: roleRecord } = await supabase
+        .from('staff_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      const role =
+        roleRecord?.role === 'reviewer' ||
+        roleRecord?.role === 'admin'
+          ? roleRecord.role
+          : null
+
+      if (active) {
+        setAuthenticated(true)
+        setStaffRole(role)
+        setAuthChecked(true)
+      }
+    }
+
     async function checkAuthentication() {
       const {
         data: { user }
       } = await supabase.auth.getUser()
 
-      if (active) {
-        setAuthenticated(Boolean(user))
-        setAuthChecked(true)
-      }
+      await applyUser(user)
     }
 
-    checkAuthentication()
+    void checkAuthentication()
 
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) {
-        setAuthenticated(Boolean(session?.user))
-        setAuthChecked(true)
-      }
+      void applyUser(session?.user ?? null)
     })
 
     return () => {
@@ -65,6 +93,7 @@ export default function PlatformHeader() {
     }
 
     setAuthenticated(false)
+    setStaffRole(null)
     setOpen(false)
 
     router.replace('/login')
@@ -72,7 +101,17 @@ export default function PlatformHeader() {
   }
 
   const visibleLinks = authenticated
-    ? LINKS
+    ? [
+        ...LINKS,
+        ...(staffRole
+          ? [
+              {
+                label: 'Admin Review',
+                href: '/admin/applications'
+              }
+            ]
+          : [])
+      ]
     : LINKS.filter((link) => link.href !== '/dashboard')
 
   return (
