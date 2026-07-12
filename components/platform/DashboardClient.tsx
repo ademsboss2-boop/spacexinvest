@@ -172,9 +172,12 @@ export default function DashboardClient({
           {applications.length ? (
             <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
               {applications.map((application) => (
-                <article
+                <Link
                   key={application.id}
-                  className="grid gap-5 py-6 sm:grid-cols-[1fr_auto] sm:items-center"
+                  href={`/dashboard/applications/${encodeURIComponent(
+                    application.referenceCode
+                  )}`}
+                  className="-mx-3 grid gap-5 px-3 py-6 transition-colors hover:bg-white/[0.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white sm:grid-cols-[1fr_auto] sm:items-center"
                 >
                   <div>
                     <div className="text-xs uppercase tracking-[0.16em] text-white/35">
@@ -203,8 +206,12 @@ export default function DashboardClient({
                     <span className="mt-2 inline-block border border-white/15 bg-white/5 px-3 py-1 text-xs capitalize text-white/60">
                       {formatStatus(application.status)}
                     </span>
+
+                    <p className="mt-3 text-xs text-white/35">
+                      View details →
+                    </p>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           ) : (
