@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import type { Opportunity } from '../../lib/opportunities'
+import { createClient } from '../../lib/supabase/client'
 
 type InvestmentFlowProps = {
   opportunity: Opportunity
@@ -22,9 +23,14 @@ export default function InvestmentFlow({
   opportunity
 }: InvestmentFlowProps) {
   const [step, setStep] = useState<Step>(1)
-  const [amount, setAmount] = useState(String(opportunity.minimumInvestment))
+  const [amount, setAmount] = useState(
+    String(opportunity.minimumInvestment)
+  )
   const [error, setError] = useState('')
+  const [submitError, setSubmitError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const [reference, setReference] = useState('')
+  const [applicationStatus, setApplicationStatus] = useState('submitted')
 
   const numericAmount = useMemo(() => {
     const parsed = Number(amount.replace(/[^0-9.]/g, ''))
@@ -46,39 +52,100 @@ export default function InvestmentFlow({
     }
 
     setError('')
+    setSubmitError('')
     setStep(2)
   }
 
-  function confirmInvestment() {
-    const nextReference = `SX-INV-${Date.now()
-      .toString(36)
-      .toUpperCase()}`
+  async function confirmInvestment() {
+    setSubmitting(true)
+    setSubmitError('')
 
-    setReference(nextReference)
+    const supabase = createClient()
 
     try {
-      sessionStorage.setItem(
-        'spacex-invest-allocation',
-        JSON.stringify({
-          opportunity: opportunity.title,
-          amount: numericAmount,
-          reference: nextReference
-        })
-      )
-    } catch {
-      // Session storage may be unavailable.
-    }
+      const {
+        data: { user },
+        error: userError
+      } = await supabase.auth.getUser()
 
-    setStep(3)
+      if (userError || !user) {
+        window.location.assign(
+          `/login?next=${encodeURIComponent(
+            `/invest/${opportunity.slug}`
+          )}`
+        )
+        return
+      }
+
+      const {
+        data: opportunityRow,
+        error: opportunityError
+      } = await supabase
+        .from('opportunities')
+        .select('id, minimum_investment')
+        .eq('slug', opportunity.slug)
+        .single()
+
+      if (opportunityError || !opportunityRow) {
+        setSubmitError(
+          'This opportunity is currently unavailable. Please try again.'
+        )
+        return
+      }
+
+      const databaseMinimum = Number(
+        opportunityRow.minimum_investment
+      )
+
+      if (numericAmount < databaseMinimum) {
+        setSubmitError(
+          `The minimum investment is ${formatCurrency(databaseMinimum)}.`
+        )
+        setStep(1)
+        return
+      }
+
+      const {
+        data: application,
+        error: applicationError
+      } = await supabase
+        .from('investment_applications')
+        .insert({
+          user_id: user.id,
+          opportunity_id: opportunityRow.id,
+          amount: numericAmount,
+          status: 'submitted'
+        })
+        .select('id, reference_code, status, submitted_at')
+        .single()
+
+      if (applicationError || !application) {
+        setSubmitError(
+          applicationError?.message ??
+            'The investment application could not be submitted.'
+        )
+        return
+      }
+
+      setReference(application.reference_code)
+      setApplicationStatus(application.status)
+      setStep(3)
+    } catch {
+      setSubmitError(
+        'Something went wrong while submitting the application.'
+      )
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mt-6 border border-white/10 bg-white/5 p-6 backdrop-blur-md sm:p-8">
+      <div className="border border-white/10 bg-white/5 p-6 backdrop-blur-md sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
-              Investment
+              Investment Application
             </p>
 
             <h1 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
@@ -97,8 +164,7 @@ export default function InvestmentFlow({
 
             <p className="mt-3 text-sm leading-relaxed text-white/55">
               The minimum investment for this opportunity is{' '}
-              {opportunity.formattedMinimum}. No payment details will be
-              requested.
+              {opportunity.formattedMinimum}.
             </p>
 
             <div className="mt-7">
@@ -128,7 +194,10 @@ export default function InvestmentFlow({
               </div>
 
               {error ? (
-                <p id="amount-error" className="mt-3 text-sm text-red-300">
+                <p
+                  id="amount-error"
+                  className="mt-3 text-sm text-red-300"
+                >
                   {error}
                 </p>
               ) : null}
@@ -163,7 +232,7 @@ export default function InvestmentFlow({
         {step === 2 ? (
           <div className="py-8">
             <h2 className="text-xl font-semibold text-white">
-              Review investment
+              Review your application
             </h2>
 
             <div className="mt-7 divide-y divide-white/10 border-y border-white/10">
@@ -175,41 +244,52 @@ export default function InvestmentFlow({
               </div>
 
               <div className="flex justify-between gap-6 py-5">
-                <span className="text-sm text-white/45">Investment amount</span>
+                <span className="text-sm text-white/45">
+                  Investment amount
+                </span>
                 <span className="text-sm font-medium text-white">
                   {formatCurrency(numericAmount)}
                 </span>
               </div>
 
               <div className="flex justify-between gap-6 py-5">
-                <span className="text-sm text-white/45">Allocation type</span>
+                <span className="text-sm text-white/45">
+                  Application type
+                </span>
                 <span className="text-sm font-medium text-white">
-                  One-time allocation
+                  One-time allocation request
                 </span>
               </div>
 
               <div className="flex justify-between gap-6 py-5">
-                <span className="text-sm text-white/45">Payment method</span>
-                <span className="text-sm font-medium text-white">
-                  None required
+                <span className="text-sm text-white/45">
+                  Payment method
                 </span>
-              </div>
-
-              <div className="flex justify-between gap-6 py-5">
-                <span className="text-sm text-white/45">Processing fee</span>
-                <span className="text-sm font-medium text-white">$0</span>
+                <span className="text-sm font-medium text-white">
+                  Not collected
+                </span>
               </div>
             </div>
 
             <p className="mt-6 text-sm leading-relaxed text-white/55">
-              Review the information above before confirming. No payment
-              information is required at this stage.
+              Submitting creates an investment application for review. No
+              payment information is collected at this stage.
             </p>
+
+            {submitError ? (
+              <div
+                role="alert"
+                className="mt-6 border border-red-400/25 bg-red-400/10 px-4 py-3 text-sm text-red-200"
+              >
+                {submitError}
+              </div>
+            ) : null}
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={() => setStep(1)}
+                disabled={submitting}
                 className="btn btn-ghost"
               >
                 Back
@@ -218,9 +298,12 @@ export default function InvestmentFlow({
               <button
                 type="button"
                 onClick={confirmInvestment}
-                className="btn btn-primary"
+                disabled={submitting}
+                className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Confirm Investment
+                {submitting
+                  ? 'Submitting…'
+                  : 'Submit Investment Application'}
               </button>
             </div>
           </div>
@@ -233,16 +316,16 @@ export default function InvestmentFlow({
             </div>
 
             <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
-              Investment submitted
+              Application submitted
             </p>
 
             <h2 className="mt-3 text-3xl font-semibold text-white">
-              Confirmation
+              Under Review
             </h2>
 
             <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/55">
-              Your investment request for {formatCurrency(numericAmount)} in
-              {opportunity.title} has been prepared. No payment was processed.
+              Your application for {formatCurrency(numericAmount)} in{' '}
+              {opportunity.title} has been submitted successfully.
             </p>
 
             <div className="mx-auto mt-7 max-w-md border border-white/10 bg-black/35 p-5 text-left">
@@ -253,7 +336,19 @@ export default function InvestmentFlow({
               <div className="mt-2 break-all font-mono text-sm text-white">
                 {reference}
               </div>
+
+              <div className="mt-5 text-xs uppercase tracking-[0.18em] text-white/40">
+                Status
+              </div>
+
+              <div className="mt-2 text-sm capitalize text-white">
+                {applicationStatus.replaceAll('_', ' ')}
+              </div>
             </div>
+
+            <p className="mt-5 text-xs text-white/35">
+              No payment was processed.
+            </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/dashboard" className="btn btn-primary">
