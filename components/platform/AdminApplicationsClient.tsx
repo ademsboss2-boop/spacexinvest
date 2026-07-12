@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import {
   Activity,
   BarChart3,
@@ -12,6 +13,7 @@ import {
   Filter,
   Loader2,
   Search,
+  ScrollText,
   ShieldCheck,
   TrendingUp,
   UserRound,
@@ -1261,6 +1263,19 @@ export default function AdminApplicationsClient({
                           {messages[application.id]}
                         </div>
                       ) : null}
+
+                      <Link
+                        href={`/admin/applications/${encodeURIComponent(
+                          application.referenceCode
+                        )}`}
+                        className="btn btn-ghost mt-5 min-h-12 w-full gap-2"
+                      >
+                        <ScrollText
+                          size={16}
+                          aria-hidden="true"
+                        />
+                        View Audit Record
+                      </Link>
                     </div>
                   </div>
                 </article>
