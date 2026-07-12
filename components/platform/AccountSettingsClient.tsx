@@ -131,19 +131,21 @@ export default function AccountSettingsClient({
 
       const { data, error } = await supabase
         .from('profiles')
-        .upsert(
-          {
-            id: user.id,
-            display_name: trimmedDisplayName
-          },
-          {
-            onConflict: 'id'
-          }
-        )
+        .update({
+          display_name: trimmedDisplayName
+        })
+        .eq('id', user.id)
         .select('display_name')
         .single()
 
       if (error) {
+        console.error('Profile update failed:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        })
+
         setErrorMessage(
           'We could not update your profile. Please try again.'
         )
