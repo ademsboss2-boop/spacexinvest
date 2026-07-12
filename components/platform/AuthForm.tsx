@@ -239,6 +239,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
         ) : null}
       </div>
 
+      {!signup ? (
+        <div className="mt-4 text-right">
+          <Link
+            href="/forgot-password"
+            className="text-sm text-white/50 underline decoration-white/20 underline-offset-4 hover:text-white"
+          >
+            Forgot password?
+          </Link>
+        </div>
+      ) : null}
+
       {signup ? (
         <>
           <div className="mt-5">
