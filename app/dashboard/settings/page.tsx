@@ -50,9 +50,11 @@ export default async function AccountSettingsPage() {
   const role =
     staffRole?.role === 'admin'
       ? 'admin'
-      : staffRole?.role === 'reviewer'
-        ? 'reviewer'
-        : 'investor'
+      : staffRole?.role === 'finance'
+        ? 'finance'
+        : staffRole?.role === 'reviewer'
+          ? 'reviewer'
+          : 'investor'
 
   return (
     <main className="min-h-screen bg-black text-white">

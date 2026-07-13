@@ -19,7 +19,11 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
 
-type AccountRole = 'investor' | 'reviewer' | 'admin'
+type AccountRole =
+  | 'investor'
+  | 'reviewer'
+  | 'finance'
+  | 'admin'
 
 type AccountSettingsClientProps = {
   initialDisplayName: string
@@ -31,6 +35,7 @@ type AccountSettingsClientProps = {
 
 function getRoleLabel(role: AccountRole) {
   if (role === 'admin') return 'Administrator'
+  if (role === 'finance') return 'Finance Administrator'
   if (role === 'reviewer') return 'Application Reviewer'
   return 'Investor'
 }

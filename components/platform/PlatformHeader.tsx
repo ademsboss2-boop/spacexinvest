@@ -27,7 +27,7 @@ export default function PlatformHeader() {
   const [open, setOpen] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
   const [staffRole, setStaffRole] = useState<
-    'reviewer' | 'admin' | null
+    'reviewer' | 'finance' | 'admin' | null
   >(null)
   const [authChecked, setAuthChecked] = useState(false)
   const [notificationCount, setNotificationCount] = useState(0)
@@ -70,6 +70,7 @@ export default function PlatformHeader() {
 
       const role =
         roleRecord?.role === 'reviewer' ||
+        roleRecord?.role === 'finance' ||
         roleRecord?.role === 'admin'
           ? roleRecord.role
           : null
@@ -149,14 +150,28 @@ export default function PlatformHeader() {
           label: 'Settings',
           href: '/dashboard/settings'
         },
-        ...(staffRole
-          ? [
-              {
-                label: 'Admin Review',
-                href: '/admin/applications'
-              }
-            ]
-          : []),
+        ...(
+          staffRole === 'reviewer' ||
+          staffRole === 'admin'
+            ? [
+                {
+                  label: 'Admin Review',
+                  href: '/admin/applications'
+                }
+              ]
+            : []
+        ),
+        ...(
+          staffRole === 'finance' ||
+          staffRole === 'admin'
+            ? [
+                {
+                  label: 'Finance',
+                  href: '/admin/finance'
+                }
+              ]
+            : []
+        ),
         ...(staffRole === 'admin'
           ? [
               {

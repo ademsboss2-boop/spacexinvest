@@ -151,6 +151,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
       const isStaff =
         staffRole?.role === 'reviewer' ||
+        staffRole?.role === 'finance' ||
         staffRole?.role === 'admin'
 
       if (isStaff) {

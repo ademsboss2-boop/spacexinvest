@@ -12,7 +12,7 @@ type RawStaffMember = {
   staff_user_id: string
   staff_email: string
   staff_display_name: string
-  staff_role: 'reviewer' | 'admin'
+  staff_role: 'reviewer' | 'finance' | 'admin'
   staff_since: string
   email_confirmed: boolean
 }
@@ -52,10 +52,12 @@ export default async function AdminStaffPage() {
     .maybeSingle()
 
   if (!staffRole || staffRole.role !== 'admin') {
-    if (
-      staffRole?.role === 'reviewer'
-    ) {
+    if (staffRole?.role === 'reviewer') {
       redirect('/admin/applications')
+    }
+
+    if (staffRole?.role === 'finance') {
+      redirect('/admin/finance')
     }
 
     redirect('/dashboard')
