@@ -156,6 +156,14 @@ export default function PlatformHeader() {
                 href: '/admin/applications'
               }
             ]
+          : []),
+        ...(staffRole === 'admin'
+          ? [
+              {
+                label: 'Staff Access',
+                href: '/admin/staff'
+              }
+            ]
           : [])
       ]
     : LINKS.filter((link) => link.href !== '/dashboard')
