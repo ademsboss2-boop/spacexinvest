@@ -172,6 +172,10 @@ export default function PlatformHeader() {
                 {
                   label: 'Finance',
                   href: '/admin/finance'
+                },
+                {
+                  label: 'Portfolio Admin',
+                  href: '/admin/portfolio'
                 }
               ]
             : []
