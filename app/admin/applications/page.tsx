@@ -54,6 +54,21 @@ export default async function AdminApplicationsPage() {
     redirect('/dashboard')
   }
 
+  const { data: assurance, error: assuranceError } =
+    await supabase.auth.mfa
+      .getAuthenticatorAssuranceLevel()
+
+  if (
+    assuranceError ||
+    assurance.currentLevel !== 'aal2'
+  ) {
+    redirect(
+      `/auth/mfa?next=${encodeURIComponent(
+        '/admin/applications'
+      )}`
+    )
+  }
+
   const { data: applicationData, error: applicationError } =
     await supabase
       .from('investment_applications')

@@ -61,6 +61,21 @@ export default async function AdminStaffPage() {
     redirect('/dashboard')
   }
 
+  const { data: assurance, error: assuranceError } =
+    await supabase.auth.mfa
+      .getAuthenticatorAssuranceLevel()
+
+  if (
+    assuranceError ||
+    assurance.currentLevel !== 'aal2'
+  ) {
+    redirect(
+      `/auth/mfa?next=${encodeURIComponent(
+        '/admin/staff'
+      )}`
+    )
+  }
+
   const [staffResult, auditResult] = await Promise.all([
     supabase.rpc('list_staff_members'),
     supabase.rpc('list_staff_role_audit', {
