@@ -139,13 +139,17 @@ export default function PlatformHeader() {
   }
 
   const visibleLinks: NavLink[] = authenticated
-    ? [
-        ...LINKS,
-        {
-          label: 'Activity',
-          href: '/dashboard/activity',
-          badge: notificationCount
-        },
+  ? [
+      ...LINKS,
+      {
+        label: 'Portfolio',
+        href: '/dashboard/portfolio'
+      },
+      {
+        label: 'Activity',
+        href: '/dashboard/activity',
+        badge: notificationCount
+      },
         {
           label: 'Settings',
           href: '/dashboard/settings'
@@ -168,6 +172,10 @@ export default function PlatformHeader() {
                 {
                   label: 'Finance',
                   href: '/admin/finance'
+                },
+                {
+                  label: 'Portfolio Admin',
+                  href: '/admin/portfolio'
                 }
               ]
             : []
