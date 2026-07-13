@@ -143,6 +143,39 @@ export default function AuthForm({ mode }: AuthFormProps) {
         return
       }
 
+      const { data: staffRole } = await supabase
+        .from('staff_roles')
+        .select('role')
+        .maybeSingle()
+
+      const isStaff =
+        staffRole?.role === 'reviewer' ||
+        staffRole?.role === 'admin'
+
+      if (isStaff) {
+        const {
+          data: assurance,
+          error: assuranceError
+        } = await supabase.auth.mfa
+          .getAuthenticatorAssuranceLevel()
+
+        if (
+          assuranceError ||
+          assurance?.currentLevel !== 'aal2'
+        ) {
+          const mfaDestination =
+            destination.startsWith('/auth/mfa')
+              ? destination
+              : `/auth/mfa?next=${encodeURIComponent(
+                  destination
+                )}`
+
+          router.replace(mfaDestination)
+          router.refresh()
+          return
+        }
+      }
+
       router.replace(destination)
       router.refresh()
     } catch {

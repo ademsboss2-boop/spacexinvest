@@ -85,6 +85,26 @@ export default async function AdminComplianceRecordPage({
     redirect('/dashboard')
   }
 
+  const complianceDestination =
+    `/admin/applications/${encodeURIComponent(
+      reference
+    )}`
+
+  const { data: assurance, error: assuranceError } =
+    await supabase.auth.mfa
+      .getAuthenticatorAssuranceLevel()
+
+  if (
+    assuranceError ||
+    assurance.currentLevel !== 'aal2'
+  ) {
+    redirect(
+      `/auth/mfa?next=${encodeURIComponent(
+        complianceDestination
+      )}`
+    )
+  }
+
   const { data: applicationData, error: applicationError } =
     await supabase
       .from('investment_applications')
