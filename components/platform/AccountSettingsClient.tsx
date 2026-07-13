@@ -516,13 +516,23 @@ export default function AccountSettingsClient({
                   </div>
                 </div>
 
-                <Link
-                  href="/forgot-password"
-                  className="btn btn-ghost min-h-13 shrink-0 gap-3"
-                >
-                  <ShieldCheck size={16} aria-hidden="true" />
-                  Change password
-                </Link>
+                <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                  <Link
+                    href="/dashboard/security"
+                    className="btn btn-primary min-h-13 gap-3"
+                  >
+                    <KeyRound size={16} aria-hidden="true" />
+                    Manage MFA
+                  </Link>
+
+                  <Link
+                    href="/forgot-password"
+                    className="btn btn-ghost min-h-13 gap-3"
+                  >
+                    <ShieldCheck size={16} aria-hidden="true" />
+                    Change password
+                  </Link>
+                </div>
               </div>
             </section>
           </div>
