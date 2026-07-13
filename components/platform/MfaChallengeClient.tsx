@@ -14,6 +14,7 @@ import {
   XCircle
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
+import { recordSecurityEvent } from '../../lib/security-events/client'
 
 type TotpFactor = {
   id: string
@@ -123,9 +124,27 @@ export default function MfaChallengeClient({
         })
 
       if (verifyError) {
+        await recordSecurityEvent(
+          supabase,
+          'mfa_verification_failed',
+          {
+            context: 'privileged_challenge',
+            destination
+          }
+        )
+
         setError(verifyError.message)
         return
       }
+
+      await recordSecurityEvent(
+        supabase,
+        'mfa_verified',
+        {
+          context: 'privileged_challenge',
+          destination
+        }
+      )
 
       router.replace(destination)
       router.refresh()
