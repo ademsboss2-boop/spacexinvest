@@ -18,6 +18,7 @@ import {
   KeyRound,
   Loader2,
   LockKeyhole,
+  LogOut,
   Plus,
   ShieldCheck,
   Smartphone,
@@ -25,6 +26,7 @@ import {
   XCircle
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
+import { recordSecurityEvent } from '../../lib/security-events/client'
 
 type TotpFactor = {
   id: string
@@ -83,6 +85,11 @@ export default function MfaSecurityClient({
   const [verifying, setVerifying] = useState(false)
   const [removingId, setRemovingId] =
     useState<string | null>(null)
+
+  const [
+    endingOtherSessions,
+    setEndingOtherSessions
+  ] = useState(false)
 
   const [enrollment, setEnrollment] =
     useState<EnrollmentState | null>(null)
@@ -224,9 +231,25 @@ export default function MfaSecurityClient({
         })
 
       if (verifyError) {
+        await recordSecurityEvent(
+          supabase,
+          'mfa_verification_failed',
+          {
+            context: 'factor_enrollment'
+          }
+        )
+
         setError(verifyError.message)
         return
       }
+
+      await recordSecurityEvent(
+        supabase,
+        'mfa_enrolled',
+        {
+          factor_type: 'totp'
+        }
+      )
 
       setEnrollment(null)
       setVerificationCode('')
@@ -305,6 +328,14 @@ export default function MfaSecurityClient({
         return
       }
 
+      await recordSecurityEvent(
+        supabase,
+        'mfa_factor_removed',
+        {
+          factor_type: 'totp'
+        }
+      )
+
       setMessage(
         'The authenticator factor was removed.'
       )
@@ -317,6 +348,79 @@ export default function MfaSecurityClient({
       )
     } finally {
       setRemovingId(null)
+    }
+  }
+
+  async function signOutOtherSessions() {
+    if (isStaff && currentLevel !== 'aal2') {
+      router.push(
+        `/auth/mfa?next=${encodeURIComponent(
+          '/dashboard/security'
+        )}`
+      )
+      return
+    }
+
+    const confirmed = window.confirm(
+      'Sign out every other browser and device session? Your current session will remain active.'
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setEndingOtherSessions(true)
+    setError('')
+    setMessage('')
+
+    try {
+      const { error: signOutError } =
+        await supabase.auth.signOut({
+          scope: 'others'
+        })
+
+      if (signOutError) {
+        await recordSecurityEvent(
+          supabase,
+          'session_control_failed',
+          {
+            action: 'sign_out_other_sessions',
+            reason: 'provider_request_failed'
+          }
+        )
+
+        setError(
+          'Your other sessions could not be signed out.'
+        )
+        return
+      }
+
+      await recordSecurityEvent(
+        supabase,
+        'other_sessions_signed_out',
+        {
+          action: 'sign_out_other_sessions'
+        }
+      )
+
+      setMessage(
+        'Other browser and device sessions were signed out successfully.'
+      )
+    } catch {
+      await recordSecurityEvent(
+        supabase,
+        'session_control_failed',
+        {
+          action: 'sign_out_other_sessions',
+          reason: 'unexpected_client_error'
+        }
+      )
+
+      setError(
+        'Something went wrong while signing out other sessions.'
+      )
+    } finally {
+      setEndingOtherSessions(false)
     }
   }
 
@@ -722,6 +826,63 @@ export default function MfaSecurityClient({
             </div>
           )}
         </div>
+      </section>
+
+      <section className="mt-6 border border-white/10 bg-white/[0.025] p-6 sm:p-8">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/10 bg-white/[0.04]">
+              <LogOut
+                size={18}
+                aria-hidden="true"
+                className="text-white/55"
+              />
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-white/35">
+                Session Control
+              </p>
+
+              <h2 className="mt-2 text-xl font-semibold text-white">
+                Sign out other sessions
+              </h2>
+
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/40">
+                Revoke refresh access for every other browser and
+                device while keeping this session active.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            disabled={endingOtherSessions || loading}
+            onClick={signOutOtherSessions}
+            className="btn btn-ghost min-h-12 shrink-0 gap-2 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {endingOtherSessions ? (
+              <>
+                <Loader2
+                  size={16}
+                  aria-hidden="true"
+                  className="animate-spin"
+                />
+                Signing Out
+              </>
+            ) : (
+              <>
+                <LogOut size={16} aria-hidden="true" />
+                Sign Out Other Sessions
+              </>
+            )}
+          </button>
+        </div>
+
+        <p className="mt-5 border-t border-white/10 pt-4 text-xs leading-6 text-white/30">
+          Already-issued access tokens on another device may remain
+          active until their normal expiration time.
+        </p>
       </section>
     </div>
   )

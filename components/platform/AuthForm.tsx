@@ -14,6 +14,7 @@ import {
   UserRound
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
+import { recordSecurityEvent } from '../../lib/security-events/client'
 
 type AuthMode = 'login' | 'signup'
 
@@ -163,6 +164,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
           assuranceError ||
           assurance?.currentLevel !== 'aal2'
         ) {
+          await recordSecurityEvent(
+            supabase,
+            'privileged_challenge_required',
+            {
+              destination,
+              reason: assuranceError
+                ? 'assurance_check_failed'
+                : 'aal2_required_after_password_login'
+            }
+          )
+
           const mfaDestination =
             destination.startsWith('/auth/mfa')
               ? destination
