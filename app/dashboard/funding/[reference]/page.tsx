@@ -100,19 +100,9 @@ export default async function InvestorFundingPage({
 
   const [walletResult, depositResult] =
     await Promise.all([
-      supabase
-        .from('funding_wallets')
-        .select(`
-          id,
-          asset,
-          network,
-          address,
-          display_name,
-          instructions
-        `)
-        .eq('is_active', true)
-        .eq('environment', 'sandbox')
-        .order('asset', { ascending: true }),
+      supabase.rpc('list_investor_funding_wallets', {
+        p_application_id: application.id
+      }),
 
       supabase
         .from('investor_deposits')
