@@ -19,7 +19,7 @@ export type StaffMember = {
   staffUserId: string
   staffEmail: string
   staffDisplayName: string
-  staffRole: 'reviewer' | 'admin'
+  staffRole: 'reviewer' | 'finance' | 'admin'
   staffSince: string
   emailConfirmed: boolean
 }
@@ -48,7 +48,7 @@ type RawStaffMember = {
   staff_user_id: string
   staff_email: string
   staff_display_name: string
-  staff_role: 'reviewer' | 'admin'
+  staff_role: 'reviewer' | 'finance' | 'admin'
   staff_since: string
   email_confirmed: boolean
 }
@@ -119,6 +119,10 @@ function roleClasses(role: string) {
     return 'border-amber-300/20 bg-amber-300/10 text-amber-100'
   }
 
+  if (role === 'finance') {
+    return 'border-emerald-300/20 bg-emerald-300/10 text-emerald-100'
+  }
+
   return 'border-sky-300/20 bg-sky-300/10 text-sky-100'
 }
 
@@ -168,7 +172,7 @@ export default function AdminStaffClient({
 
   const [email, setEmail] = useState('')
   const [role, setRole] =
-    useState<'reviewer' | 'admin'>('reviewer')
+    useState<'reviewer' | 'finance' | 'admin'>('reviewer')
 
   const [saving, setSaving] = useState(false)
   const [removingId, setRemovingId] =
@@ -492,16 +496,21 @@ export default function AdminStaffClient({
                   Reviewer
                 </option>
 
+                <option value="finance">
+                  Finance Administrator
+                </option>
+
                 <option value="admin">
                   Administrator
                 </option>
               </select>
 
               <div className="mt-5 border border-white/10 bg-black/25 p-4 text-xs leading-6 text-white/40">
-                Reviewers can inspect and decide applications.
-                Administrators can also manage staff access. The
-                account must already be registered and email
-                verified.
+                Reviewers manage application decisions.
+                Finance administrators manage funding records and
+                valuations. Administrators can manage every staff
+                role. The account must already be registered and
+                email verified.
               </div>
 
               <button

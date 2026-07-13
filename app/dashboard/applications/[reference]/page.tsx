@@ -316,14 +316,32 @@ export default async function ApplicationDetailsPage({
 
             <section className="border border-white/10 bg-white/5 p-6 md:p-8">
               <p className="text-xs uppercase tracking-[0.18em] text-white/40">
-                Important
+                Funding
               </p>
 
-              <p className="mt-4 text-sm leading-relaxed text-white/55">
-                This record represents an investment application. No
-                payment was collected or processed through this
-                application.
-              </p>
+              {application.status === 'approved' ? (
+                <>
+                  <p className="mt-4 text-sm leading-relaxed text-white/55">
+                    Your allocation is approved. Partial funding
+                    submissions are supported and will be reviewed
+                    by finance before capital is credited.
+                  </p>
+
+                  <Link
+                    href={`/dashboard/funding/${encodeURIComponent(
+                      application.reference_code
+                    )}`}
+                    className="btn btn-primary mt-6 w-full"
+                  >
+                    Open Funding Portal
+                  </Link>
+                </>
+              ) : (
+                <p className="mt-4 text-sm leading-relaxed text-white/55">
+                  Funding access becomes available after the
+                  application has been approved.
+                </p>
+              )}
             </section>
           </div>
         </div>

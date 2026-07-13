@@ -64,6 +64,7 @@ export default async function SecurityPage({
       <MfaSecurityClient
         isStaff={
           staffRole?.role === 'reviewer' ||
+          staffRole?.role === 'finance' ||
           staffRole?.role === 'admin'
         }
         required={requiredValue === '1'}
