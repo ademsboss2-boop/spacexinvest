@@ -1,4 +1,4 @@
-﻿export type InvestorEmailDetail = {
+export type InvestorEmailDetail = {
   label: string
   value: string
 }
@@ -25,10 +25,9 @@ function escapeHtml(value: string): string {
     .replaceAll("'", '&#039;')
 }
 
-function siteUrl(): string {
+function emailAssetBaseUrl(): string {
   return (
-    process.env.SITE_URL ??
-    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.EMAIL_ASSET_BASE_URL ??
     'https://spacexinvest.co'
   ).replace(/\/+$/, '')
 }
@@ -39,7 +38,7 @@ export function buildPremiumInvestorEmail(
   html: string
   text: string
 } {
-  const baseUrl = siteUrl()
+  const baseUrl = emailAssetBaseUrl()
   const logoUrl =
     `${baseUrl}/media/spacex-logo-transparent.png`
 
@@ -53,7 +52,8 @@ export function buildPremiumInvestorEmail(
             style="
               padding: 12px 0;
               border-bottom: 1px solid #232323;
-              color: #8f8f8f;
+              color: #c7c7c7 !important;
+              -webkit-text-fill-color: #c7c7c7 !important;
               font-family: Arial, Helvetica, sans-serif;
               font-size: 12px;
               line-height: 18px;
@@ -70,7 +70,8 @@ export function buildPremiumInvestorEmail(
             style="
               padding: 12px 0;
               border-bottom: 1px solid #232323;
-              color: #ffffff;
+              color: #ffffff !important;
+              -webkit-text-fill-color: #ffffff !important;
               font-family: Arial, Helvetica, sans-serif;
               font-size: 14px;
               line-height: 20px;
@@ -89,14 +90,18 @@ export function buildPremiumInvestorEmail(
     input.statusLabel && input.statusValue
       ? `
         <table
+          class="email-status-card"
           role="presentation"
           width="100%"
           cellpadding="0"
           cellspacing="0"
+          bgcolor="#111111"
           style="
             margin: 24px 0;
             border-collapse: collapse;
             background-color: #111111;
+            background-image:
+              linear-gradient(#111111, #111111);
             border: 1px solid #2b2b2b;
           "
         >
@@ -104,7 +109,8 @@ export function buildPremiumInvestorEmail(
             <td style="padding: 18px 20px;">
               <div
                 style="
-                  color: #8f8f8f;
+                  color: #c7c7c7 !important;
+                  -webkit-text-fill-color: #c7c7c7 !important;
                   font-family: Arial, Helvetica, sans-serif;
                   font-size: 10px;
                   line-height: 16px;
@@ -118,7 +124,8 @@ export function buildPremiumInvestorEmail(
               <div
                 style="
                   margin-top: 5px;
-                  color: #ffffff;
+                  color: #ffffff !important;
+                  -webkit-text-fill-color: #ffffff !important;
                   font-family: Arial, Helvetica, sans-serif;
                   font-size: 18px;
                   line-height: 25px;
@@ -141,14 +148,52 @@ export function buildPremiumInvestorEmail(
       name="viewport"
       content="width=device-width, initial-scale=1"
     >
+    <meta
+      name="color-scheme"
+      content="light only"
+    >
+    <meta
+      name="supported-color-schemes"
+      content="light only"
+    >
+    <style>
+      :root {
+        color-scheme: light only;
+        supported-color-schemes: light only;
+      }
+
+      .email-dark-bg {
+        background-color: #050505 !important;
+        background-image:
+          linear-gradient(#050505, #050505) !important;
+      }
+
+      .email-dark-card {
+        background-color: #0c0c0c !important;
+        background-image:
+          linear-gradient(#0c0c0c, #0c0c0c) !important;
+      }
+
+      .email-status-card {
+        background-color: #111111 !important;
+        background-image:
+          linear-gradient(#111111, #111111) !important;
+      }
+    </style>
     <title>${escapeHtml(input.title)}</title>
   </head>
 
   <body
+    class="email-dark-bg"
+    bgcolor="#050505"
     style="
       margin: 0;
       padding: 0;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
       background-color: #050505;
+      background-image:
+        linear-gradient(#050505, #050505);
     "
   >
     <div
@@ -164,20 +209,31 @@ export function buildPremiumInvestorEmail(
     </div>
 
     <table
+      class="email-dark-bg"
       role="presentation"
       width="100%"
       cellpadding="0"
       cellspacing="0"
+      bgcolor="#050505"
       style="
         width: 100%;
         background-color: #050505;
+        background-image:
+          linear-gradient(#050505, #050505);
         border-collapse: collapse;
       "
     >
       <tr>
         <td
+          class="email-dark-bg"
           align="center"
-          style="padding: 38px 16px;"
+          bgcolor="#050505"
+          style="
+            padding: 38px 16px;
+            background-color: #050505;
+            background-image:
+              linear-gradient(#050505, #050505);
+          "
         >
           <table
             role="presentation"
@@ -209,8 +265,14 @@ export function buildPremiumInvestorEmail(
 
             <tr>
               <td
+                class="email-dark-card"
+                bgcolor="#0c0c0c"
                 style="
+                  color: #ffffff !important;
+                  -webkit-text-fill-color: #ffffff !important;
                   background-color: #0c0c0c;
+                  background-image:
+                    linear-gradient(#0c0c0c, #0c0c0c);
                   border: 1px solid #242424;
                   padding: 42px 38px;
                 "
@@ -220,7 +282,8 @@ export function buildPremiumInvestorEmail(
                     display: inline-block;
                     padding: 7px 10px;
                     border: 1px solid #323232;
-                    color: #b7b7b7;
+                    color: #e8e8e8 !important;
+                    -webkit-text-fill-color: #e8e8e8 !important;
                     font-family: Arial, Helvetica, sans-serif;
                     font-size: 9px;
                     line-height: 12px;
@@ -234,7 +297,8 @@ export function buildPremiumInvestorEmail(
                 <div
                   style="
                     margin-top: 24px;
-                    color: #8f8f8f;
+                    color: #c7c7c7 !important;
+                    -webkit-text-fill-color: #c7c7c7 !important;
                     font-family: Arial, Helvetica, sans-serif;
                     font-size: 11px;
                     line-height: 17px;
@@ -248,7 +312,8 @@ export function buildPremiumInvestorEmail(
                 <h1
                   style="
                     margin: 10px 0 0;
-                    color: #ffffff;
+                    color: #ffffff !important;
+                    -webkit-text-fill-color: #ffffff !important;
                     font-family: Arial, Helvetica, sans-serif;
                     font-size: 30px;
                     line-height: 38px;
@@ -261,7 +326,8 @@ export function buildPremiumInvestorEmail(
                 <p
                   style="
                     margin: 28px 0 0;
-                    color: #ffffff;
+                    color: #ffffff !important;
+                    -webkit-text-fill-color: #ffffff !important;
                     font-family: Arial, Helvetica, sans-serif;
                     font-size: 15px;
                     line-height: 24px;
@@ -273,7 +339,8 @@ export function buildPremiumInvestorEmail(
                 <p
                   style="
                     margin: 14px 0 0;
-                    color: #b7b7b7;
+                    color: #e8e8e8 !important;
+                    -webkit-text-fill-color: #e8e8e8 !important;
                     font-family: Arial, Helvetica, sans-serif;
                     font-size: 15px;
                     line-height: 25px;
@@ -322,7 +389,8 @@ export function buildPremiumInvestorEmail(
                         style="
                           display: inline-block;
                           padding: 15px 24px;
-                          color: #000000;
+                          color: #000000 !important;
+                          -webkit-text-fill-color: #000000 !important;
                           font-family: Arial, Helvetica, sans-serif;
                           font-size: 12px;
                           line-height: 16px;
@@ -341,7 +409,8 @@ export function buildPremiumInvestorEmail(
                 <p
                   style="
                     margin: 30px 0 0;
-                    color: #686868;
+                    color: #b8b8b8 !important;
+                    -webkit-text-fill-color: #b8b8b8 !important;
                     font-family: Arial, Helvetica, sans-serif;
                     font-size: 11px;
                     line-height: 18px;
@@ -359,7 +428,8 @@ export function buildPremiumInvestorEmail(
                 <p
                   style="
                     margin: 0;
-                    color: #5f5f5f;
+                    color: #aaaaaa !important;
+                    -webkit-text-fill-color: #aaaaaa !important;
                     font-family: Arial, Helvetica, sans-serif;
                     font-size: 10px;
                     line-height: 17px;
@@ -372,7 +442,8 @@ export function buildPremiumInvestorEmail(
                 <p
                   style="
                     margin: 7px 0 0;
-                    color: #444444;
+                    color: #929292 !important;
+                    -webkit-text-fill-color: #929292 !important;
                     font-family: Arial, Helvetica, sans-serif;
                     font-size: 10px;
                     line-height: 17px;
