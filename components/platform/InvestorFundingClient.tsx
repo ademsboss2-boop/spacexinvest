@@ -83,6 +83,11 @@ function statusClasses(status: string) {
   }
 }
 
+function fundingMethodLabel(asset: string): string {
+  if (asset === 'USDT') return 'USDT (TRC20)'
+  if (asset === 'BTC') return 'BTC'
+  return asset
+}
 export default function InvestorFundingClient({
   applicationId,
   referenceCode,
@@ -443,7 +448,7 @@ export default function InvestorFundingClient({
                     key={wallet.id}
                     value={wallet.id}
                   >
-                    {wallet.asset} — {wallet.network}
+                    {fundingMethodLabel(wallet.asset)}
                   </option>
                 ))}
               </select>
@@ -455,8 +460,7 @@ export default function InvestorFundingClient({
                   </p>
 
                   <p className="mt-2 text-sm text-white/50">
-                    {selectedWallet.asset} ·{' '}
-                    {selectedWallet.network}
+                    {fundingMethodLabel(selectedWallet.asset)}
                   </p>
 
                   <div className="mt-5 flex items-start gap-3">
@@ -684,7 +688,7 @@ export default function InvestorFundingClient({
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
                       <h3 className="font-medium text-white">
-                        {deposit.asset} · {deposit.network}
+                        {fundingMethodLabel(deposit.asset)}
                       </h3>
 
                       <span
