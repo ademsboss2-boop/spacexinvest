@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, {
   useEffect,
@@ -18,6 +18,9 @@ import {
   XCircle
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
+import {
+  requestInvestorNotification
+} from '../../lib/email/request-investor-notification'
 
 export type FinancePortfolio = {
   positionId: string
@@ -335,8 +338,10 @@ export default function AdminPortfolioClient({
     }
 
     await runAction('distribution', async () => {
-      const { error: distributionError } =
-        await supabase.rpc(
+      const {
+        data: distributionId,
+        error: distributionError
+      } = await supabase.rpc(
           'record_portfolio_distribution',
           {
             p_application_id:
@@ -354,6 +359,20 @@ export default function AdminPortfolioClient({
       if (distributionError) {
         throw new Error(
           distributionError.message
+        )
+      }
+
+      const notificationSent =
+        typeof distributionId === 'string'
+          ? await requestInvestorNotification(
+              'distribution_recorded',
+              distributionId
+            )
+          : false
+
+      if (!notificationSent) {
+        console.warn(
+          'Distribution saved, but email notification failed.'
         )
       }
 
