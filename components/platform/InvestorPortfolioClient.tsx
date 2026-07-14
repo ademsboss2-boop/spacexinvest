@@ -490,9 +490,8 @@ export default function InvestorPortfolioClient({
                 </div>
 
                 <div className="mt-6 border border-white/10 bg-black/25 p-4 text-xs leading-6 text-white/35">
-                  Portfolio values are internal finance records
-                  for this pilot environment. They are not
-                  live market quotations.
+                  Portfolio values are maintained by the finance team
+                  and are not live market quotations.
                 </div>
               </section>
             </div>

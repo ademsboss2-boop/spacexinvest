@@ -12,8 +12,7 @@ export default function Footer() {
               </div>
 
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/45">
-                Investment transactions are not currently enabled on this
-                platform.
+                Private early access is available only to approved investors. Approved allocations and funding instructions are provided through the secure investor portal. Public access is not yet available.
               </p>
             </div>
 

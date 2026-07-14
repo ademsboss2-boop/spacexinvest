@@ -404,12 +404,11 @@ export default function InvestorFundingClient({
 
             <div>
               <h2 className="text-xl font-semibold text-white">
-                Sandbox Funding Instructions
+                Funding Instructions
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-white/40">
-                Select an approved sandbox or testnet wallet.
-                Do not send production funds to this environment.
+                Select an approved funding method and confirm that the asset and network match exactly before proceeding.
               </p>
             </div>
           </div>
@@ -417,7 +416,7 @@ export default function InvestorFundingClient({
           {wallets.length === 0 ? (
             <div className="mt-7 border border-dashed border-white/15 px-5 py-12 text-center">
               <p className="text-sm text-white/40">
-                Finance has not configured a sandbox wallet yet.
+                Finance has not configured an active funding wallet yet.
               </p>
             </div>
           ) : (
@@ -581,7 +580,7 @@ export default function InvestorFundingClient({
                   setTransactionHash(event.target.value)
                   setError('')
                 }}
-                placeholder="Enter the sandbox transaction hash"
+                placeholder="Enter the transaction hash"
                 className="mt-3 min-h-12 w-full border border-white/10 bg-black px-4 text-sm text-white outline-none focus:border-white/35 disabled:opacity-40"
               />
             </div>
