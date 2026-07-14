@@ -13,6 +13,9 @@ import {
   XCircle
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
+import {
+  requestInvestorNotification
+} from '../../lib/email/request-investor-notification'
 
 export type FinanceWallet = {
   id: string
@@ -518,6 +521,19 @@ export default function AdminFinanceClient({
             'The funding review could not be saved.'
         )
         return
+      }
+
+      const notificationSent =
+        await requestInvestorNotification(
+          'funding_review',
+          result.reviewed_deposit_id ??
+            deposit.depositId
+        )
+
+      if (!notificationSent) {
+        console.warn(
+          'Funding review saved, but email notification failed.'
+        )
       }
 
       setDeposits((current) =>

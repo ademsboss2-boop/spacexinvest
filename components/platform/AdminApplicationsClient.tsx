@@ -33,6 +33,9 @@ import {
   YAxis
 } from 'recharts'
 import { createClient } from '../../lib/supabase/client'
+import {
+  requestInvestorNotification
+} from '../../lib/email/request-investor-notification'
 
 export type ReviewStatus =
   | 'draft'
@@ -458,6 +461,19 @@ export default function AdminApplicationsClient({
 
       const updatedStatus =
         result.updated_status as ReviewStatus
+
+      const notificationSent =
+        await requestInvestorNotification(
+          'application_status',
+          result.updated_application_id ??
+            application.id
+        )
+
+      if (!notificationSent) {
+        console.warn(
+          'Application updated, but email notification failed.'
+        )
+      }
 
       setApplications((current) =>
         current.map((item) =>
