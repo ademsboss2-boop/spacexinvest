@@ -12,15 +12,9 @@ import {
   TrendingUp,
   WalletCards
 } from 'lucide-react'
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
-} from 'recharts'
+import PortfolioPerformanceChart, {
+  type PortfolioPerformancePoint
+} from './PortfolioPerformanceChart'
 
 export type InvestorPortfolio = {
   positionId: string
@@ -48,6 +42,7 @@ export type InvestorPortfolio = {
 
 type InvestorPortfolioClientProps = {
   portfolios: InvestorPortfolio[]
+  performancePoints: PortfolioPerformancePoint[]
 }
 
 function currency(value: number) {
@@ -104,7 +99,8 @@ function statusClasses(status: string) {
 }
 
 export default function InvestorPortfolioClient({
-  portfolios
+  portfolios,
+  performancePoints
 }: InvestorPortfolioClientProps) {
   const totals = useMemo(() => {
     return portfolios.reduce(
@@ -148,22 +144,36 @@ export default function InvestorPortfolioClient({
         100
       : 0
 
-  const chartData = useMemo(
+  const totalNetInvestedCapital = useMemo(
     () =>
-      portfolios.map((portfolio) => ({
-        name:
-          portfolio.opportunityTitle.length > 22
-            ? `${portfolio.opportunityTitle.slice(
-                0,
-                22
-              )}…`
-            : portfolio.opportunityTitle,
-
-        funded: portfolio.fundedCapital,
-        value: portfolio.currentValue
-      })),
+      portfolios.reduce(
+        (sum, portfolio) =>
+          sum + portfolio.netInvestedCapital,
+        0
+      ),
     [portfolios]
   )
+
+  const latestValuationAt = useMemo(() => {
+    return portfolios.reduce<string | null>(
+      (latest, portfolio) => {
+        if (!portfolio.lastValuedAt) {
+          return latest
+        }
+
+        if (!latest) {
+          return portfolio.lastValuedAt
+        }
+
+        return new Date(
+          portfolio.lastValuedAt
+        ).getTime() > new Date(latest).getTime()
+          ? portfolio.lastValuedAt
+          : latest
+      },
+      null
+    )
+  }, [portfolios])
 
   const summaryCards = [
     {
@@ -312,108 +322,16 @@ export default function InvestorPortfolioClient({
         {portfolios.length ? (
           <>
             <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-              <section className="border border-white/10 bg-white/[0.025] p-5 sm:p-8">
-                <p className="text-xs uppercase tracking-[0.18em] text-white/35">
-                  Capital Overview
-                </p>
-
-                <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-                  <h2 className="text-2xl font-semibold text-white">
-                    Funded Capital vs Current Value
-                  </h2>
-
-                  <p className="text-xs text-white/30">
-                    Latest finance-recorded values
-                  </p>
-                </div>
-
-                <div className="mt-8 h-[320px]">
-                  <ResponsiveContainer
-                    width="100%"
-                    height="100%"
-                  >
-                    <BarChart
-                      data={chartData}
-                      margin={{
-                        top: 10,
-                        right: 5,
-                        bottom: 25,
-                        left: 5
-                      }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="4 4"
-                        stroke="rgba(255,255,255,0.08)"
-                        vertical={false}
-                      />
-
-                      <XAxis
-                        dataKey="name"
-                        stroke="rgba(255,255,255,0.30)"
-                        tick={{
-                          fill:
-                            'rgba(255,255,255,0.42)',
-                          fontSize: 11
-                        }}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-
-                      <YAxis
-                        stroke="rgba(255,255,255,0.30)"
-                        tick={{
-                          fill:
-                            'rgba(255,255,255,0.42)',
-                          fontSize: 11
-                        }}
-                        tickFormatter={(value) =>
-                          `$${Number(value).toLocaleString()}`
-                        }
-                        tickLine={false}
-                        axisLine={false}
-                      />
-
-                      <Tooltip
-                        cursor={{
-                          fill:
-                            'rgba(255,255,255,0.04)'
-                        }}
-                        contentStyle={{
-                          background: '#090909',
-                          border:
-                            '1px solid rgba(255,255,255,0.12)',
-                          borderRadius: 0
-                        }}
-                        labelStyle={{
-                          color:
-                            'rgba(255,255,255,0.65)'
-                        }}
-                        itemStyle={{
-                          color: '#ffffff'
-                        }}
-                        formatter={(value) =>
-                          currency(Number(value))
-                        }
-                      />
-
-                      <Bar
-                        dataKey="funded"
-                        name="Verified Capital"
-                        fill="rgba(255,255,255,0.28)"
-                        radius={[2, 2, 0, 0]}
-                      />
-
-                      <Bar
-                        dataKey="value"
-                        name="Current Value"
-                        fill="rgba(255,255,255,0.88)"
-                        radius={[2, 2, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </section>
-
+              <PortfolioPerformanceChart
+                points={performancePoints}
+                currentValue={totals.currentValue}
+                netInvestedCapital={
+                  totalNetInvestedCapital
+                }
+                totalPnl={totals.totalPnl}
+                totalRoi={totalRoi}
+                lastValuedAt={latestValuationAt}
+              />
               <section className="border border-white/10 bg-white/[0.025] p-5 sm:p-8">
                 <p className="text-xs uppercase tracking-[0.18em] text-white/35">
                   Return Summary
