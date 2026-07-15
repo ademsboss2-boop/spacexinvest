@@ -178,6 +178,10 @@ export default function PlatformHeader() {
                   href: '/admin/finance'
                 },
                 {
+                  label: 'Withdrawal Processing',
+                  href: '/admin/withdrawal-processing'
+                },
+                {
                   label: 'Portfolio Admin',
                   href: '/admin/portfolio'
                 }
