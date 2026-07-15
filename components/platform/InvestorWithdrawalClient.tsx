@@ -123,7 +123,7 @@ function validateWallet(asset: PayoutAsset, address: string) {
   const trimmed = address.trim()
 
   if (!trimmed) {
-    return 'Enter a testnet wallet address.'
+    return 'Enter a wallet address.'
   }
 
   if (/\s/.test(trimmed)) {
@@ -136,11 +136,16 @@ function validateWallet(asset: PayoutAsset, address: string) {
       : 'Enter a valid TRON TRC20 wallet address.'
   }
 
-  const legacyTestnet = /^[mn2][1-9A-HJ-NP-Za-km-z]{25,39}$/
-  const bech32Testnet = /^tb1[ac-hj-np-z02-9]{11,87}$/i
+  const legacyMainnet = /^[13][1-9A-HJ-NP-Za-km-z]{25,39}$/
+  const normalizedBech32 = trimmed.toLowerCase()
+  const isMixedCase =
+    trimmed !== trimmed.toLowerCase() &&
+    trimmed !== trimmed.toUpperCase()
+  const bech32Mainnet = /^bc1[ac-hj-np-z02-9]{11,87}$/
 
-  return legacyTestnet.test(trimmed) ||
-    bech32Testnet.test(trimmed)
+  return legacyMainnet.test(trimmed) ||
+    (!isMixedCase &&
+      bech32Mainnet.test(normalizedBech32))
     ? ''
     : 'Enter a valid Bitcoin wallet address.'
 }
@@ -990,7 +995,7 @@ export default function InvestorWithdrawalClient({
                         </p>
                         <p className="mt-2 text-sm text-white/75">
                           {request.payoutAsset} ·{' '}
-                          {request.payoutNetwork === 'TRON_TESTNET_TRC20'
+                          {request.payoutAsset === 'USDT'
                             ? 'TRC20'
                             : 'Bitcoin'}
                         </p>
