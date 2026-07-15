@@ -146,6 +146,10 @@ export default function PlatformHeader() {
         href: '/dashboard/portfolio'
       },
       {
+        label: 'Withdrawals',
+        href: '/dashboard/withdrawals'
+      },
+      {
         label: 'Activity',
         href: '/dashboard/activity',
         badge: notificationCount
