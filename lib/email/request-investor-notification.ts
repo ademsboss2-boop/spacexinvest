@@ -1,7 +1,11 @@
-﻿export type InvestorNotificationEvent =
+export type InvestorNotificationEvent =
   | 'application_status'
   | 'funding_review'
   | 'distribution_recorded'
+  | 'withdrawal_submitted'
+  | 'withdrawal_reviewed'
+  | 'withdrawal_processing'
+  | 'withdrawal_completed'
 
 export async function requestInvestorNotification(
   event: InvestorNotificationEvent,

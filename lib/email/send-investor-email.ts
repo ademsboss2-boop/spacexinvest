@@ -1,4 +1,4 @@
-﻿export type SendInvestorEmailInput = {
+export type SendInvestorEmailInput = {
   to: string
   subject: string
   html: string
@@ -57,6 +57,12 @@ export async function sendInvestorEmail(
       (await response.json()) as ResendResponse
   } catch {
     responseBody = null
+  }
+
+  if (response.status === 409) {
+    return {
+      id: responseBody?.id ?? null
+    }
   }
 
   if (!response.ok) {

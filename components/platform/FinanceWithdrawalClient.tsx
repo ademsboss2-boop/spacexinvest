@@ -16,6 +16,7 @@ import {
   XCircle
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
+import { requestInvestorNotification } from '../../lib/email/request-investor-notification'
 
 export type FinanceWithdrawalStatus =
   | 'approved'
@@ -487,8 +488,16 @@ export default function FinanceWithdrawalClient({
         throw new Error(processingError.message)
       }
 
+      const notificationSent =
+        await requestInvestorNotification(
+          'withdrawal_processing',
+          selectedRequest.requestId
+        )
+
       setMessage(
-        'The withdrawal is marked as processing. Complete the separate approved testnet action before recording its reference.'
+        notificationSent
+          ? 'The withdrawal is marked as processing, and the investor notification email was sent. Complete the separate approved testnet action before recording its reference.'
+          : 'The withdrawal is marked as processing. The status was saved, but the investor notification email could not be sent. Complete the separate approved testnet action before recording its reference.'
       )
     })
   }
@@ -558,8 +567,16 @@ export default function FinanceWithdrawalClient({
         throw new Error(completionError.message)
       }
 
+      const notificationSent =
+        await requestInvestorNotification(
+          'withdrawal_completed',
+          selectedRequest.requestId
+        )
+
       setMessage(
-        'The testnet withdrawal reference and accounting completion were recorded.'
+        notificationSent
+          ? 'The testnet withdrawal reference and accounting completion were recorded, and the investor notification email was sent.'
+          : 'The testnet withdrawal reference and accounting completion were recorded. The completion remains saved, but the investor notification email could not be sent.'
       )
     })
   }

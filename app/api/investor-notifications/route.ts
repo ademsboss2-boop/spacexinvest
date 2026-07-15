@@ -22,6 +22,10 @@ type NotificationEvent =
   | 'application_status'
   | 'funding_review'
   | 'distribution_recorded'
+  | 'withdrawal_submitted'
+  | 'withdrawal_reviewed'
+  | 'withdrawal_processing'
+  | 'withdrawal_completed'
 
 type NotificationRequest = {
   event: NotificationEvent
@@ -52,7 +56,11 @@ function isNotificationEvent(
   return (
     value === 'application_status' ||
     value === 'funding_review' ||
-    value === 'distribution_recorded'
+    value === 'distribution_recorded' ||
+    value === 'withdrawal_submitted' ||
+    value === 'withdrawal_reviewed' ||
+    value === 'withdrawal_processing' ||
+    value === 'withdrawal_completed'
   )
 }
 
@@ -609,6 +617,734 @@ async function sendDistributionEmail(
   }
 }
 
+
+type WithdrawalRecord = {
+  id: string
+  requestReference: string
+  applicationReference: string
+  opportunityTitle: string
+  investorUserId: string
+  requestType: 'realized_profit' | 'full_exit'
+  payoutAsset: 'USDT' | 'BTC'
+  payoutNetwork:
+    | 'TRON_TESTNET_TRC20'
+    | 'BITCOIN_TESTNET'
+  requestedCapital: number
+  requestedProfit: number
+  requestedTotal: number
+  approvedCapital: number
+  approvedProfit: number
+  approvedTotal: number
+  status:
+    | 'submitted'
+    | 'under_review'
+    | 'approved'
+    | 'rejected'
+    | 'processing'
+    | 'completed'
+    | 'cancelled'
+  investorMessage: string | null
+  reviewedBy: string | null
+  processedBy: string | null
+}
+
+type EmailRecipient = {
+  userId: string
+  email: string
+  name: string
+}
+
+function withdrawalRequestTypeLabel(
+  value: WithdrawalRecord['requestType']
+): string {
+  return value === 'full_exit'
+    ? 'Full Exit'
+    : 'Realized Profit Only'
+}
+
+function withdrawalPayoutLabel(
+  withdrawal: WithdrawalRecord
+): string {
+  return withdrawal.payoutNetwork ===
+    'BITCOIN_TESTNET'
+    ? 'BTC · Bitcoin Testnet'
+    : 'USDT · TRON Testnet TRC20'
+}
+
+function withdrawalStatusLabel(
+  value: WithdrawalRecord['status']
+): string {
+  return value
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, (character) =>
+      character.toUpperCase()
+    )
+}
+
+async function loadWithdrawalRecord(
+  admin: SupabaseClient,
+  requestId: string
+): Promise<WithdrawalRecord> {
+  const {
+    data: withdrawalData,
+    error: withdrawalError
+  } = await admin
+    .from('investor_withdrawal_requests')
+    .select(`
+      id,
+      request_reference,
+      application_id,
+      investor_user_id,
+      request_type,
+      payout_asset,
+      payout_network,
+      requested_capital,
+      requested_profit,
+      requested_total,
+      approved_capital,
+      approved_profit,
+      approved_total,
+      status,
+      investor_message,
+      reviewed_by,
+      processed_by
+    `)
+    .eq('id', requestId)
+    .maybeSingle()
+
+  if (withdrawalError || !withdrawalData) {
+    throw new Error(
+      'Withdrawal request could not be loaded.'
+    )
+  }
+
+  const withdrawal = withdrawalData as {
+    id: string
+    request_reference: string
+    application_id: string
+    investor_user_id: string
+    request_type: 'realized_profit' | 'full_exit'
+    payout_asset: 'USDT' | 'BTC'
+    payout_network:
+      | 'TRON_TESTNET_TRC20'
+      | 'BITCOIN_TESTNET'
+    requested_capital: number | string
+    requested_profit: number | string
+    requested_total: number | string
+    approved_capital: number | string | null
+    approved_profit: number | string | null
+    approved_total: number | string
+    status: WithdrawalRecord['status']
+    investor_message: string | null
+    reviewed_by: string | null
+    processed_by: string | null
+  }
+
+  const {
+    data: applicationData,
+    error: applicationError
+  } = await admin
+    .from('investment_applications')
+    .select(`
+      reference_code,
+      opportunity:opportunities (
+        title
+      )
+    `)
+    .eq('id', withdrawal.application_id)
+    .maybeSingle()
+
+  if (applicationError || !applicationData) {
+    throw new Error(
+      'Related application could not be loaded.'
+    )
+  }
+
+  const application =
+    applicationData as unknown as {
+      reference_code: string
+      opportunity: unknown
+    }
+
+  return {
+    id: withdrawal.id,
+    requestReference:
+      withdrawal.request_reference,
+    applicationReference:
+      application.reference_code,
+    opportunityTitle: relationTitle(
+      application.opportunity
+    ),
+    investorUserId:
+      withdrawal.investor_user_id,
+    requestType: withdrawal.request_type,
+    payoutAsset: withdrawal.payout_asset,
+    payoutNetwork: withdrawal.payout_network,
+    requestedCapital: Number(
+      withdrawal.requested_capital
+    ),
+    requestedProfit: Number(
+      withdrawal.requested_profit
+    ),
+    requestedTotal: Number(
+      withdrawal.requested_total
+    ),
+    approvedCapital: Number(
+      withdrawal.approved_capital ?? 0
+    ),
+    approvedProfit: Number(
+      withdrawal.approved_profit ?? 0
+    ),
+    approvedTotal: Number(
+      withdrawal.approved_total
+    ),
+    status: withdrawal.status,
+    investorMessage:
+      withdrawal.investor_message,
+    reviewedBy: withdrawal.reviewed_by,
+    processedBy: withdrawal.processed_by
+  }
+}
+
+async function resolveStaffRecipients(
+  admin: SupabaseClient,
+  roles: StaffRole[],
+  excludedUserIds: string[] = []
+): Promise<EmailRecipient[]> {
+  const {
+    data,
+    error
+  } = await admin
+    .from('staff_roles')
+    .select('user_id, role')
+    .in('role', roles)
+
+  if (error) {
+    throw new Error(
+      'Staff notification recipients could not be loaded.'
+    )
+  }
+
+  const staffRows = (
+    (data ?? []) as Array<{
+      user_id: string
+      role: StaffRole
+    }>
+  ).filter(
+    (row) =>
+      !excludedUserIds.includes(row.user_id)
+  )
+
+  const uniqueUserIds = [
+    ...new Set(
+      staffRows.map((row) => row.user_id)
+    )
+  ]
+
+  const recipients = await Promise.all(
+    uniqueUserIds.map(async (userId) => {
+      const resolved = await resolveRecipient(
+        admin,
+        userId
+      )
+
+      return {
+        userId,
+        ...resolved
+      }
+    })
+  )
+
+  return recipients
+}
+
+async function sendWithdrawalSubmittedEmails(
+  admin: SupabaseClient,
+  withdrawal: WithdrawalRecord
+) {
+  const investor = await resolveRecipient(
+    admin,
+    withdrawal.investorUserId
+  )
+
+  const investorSubject =
+    'Your withdrawal request has been submitted'
+
+  const investorEmail =
+    buildPremiumInvestorEmail({
+      previewText: investorSubject,
+      eyebrow: 'Withdrawal Request',
+      title: 'Request Submitted',
+      greetingName: investor.name,
+      message:
+        'Your withdrawal request has been recorded and is awaiting administrator review. You can monitor its status from your private investor portal.',
+      statusLabel: 'Current Status',
+      statusValue: 'Submitted',
+      details: [
+        {
+          label: 'Request',
+          value: withdrawal.requestReference
+        },
+        {
+          label: 'Application',
+          value: withdrawal.applicationReference
+        },
+        {
+          label: 'Opportunity',
+          value: withdrawal.opportunityTitle
+        },
+        {
+          label: 'Request Type',
+          value: withdrawalRequestTypeLabel(
+            withdrawal.requestType
+          )
+        },
+        {
+          label: 'Requested Amount',
+          value: currency(
+            withdrawal.requestedTotal
+          )
+        },
+        {
+          label: 'Payout',
+          value: withdrawalPayoutLabel(
+            withdrawal
+          )
+        }
+      ],
+      actionLabel: 'View Withdrawal',
+      actionUrl: portalUrl(
+        '/dashboard/withdrawals'
+      )
+    })
+
+  await sendInvestorEmail({
+    to: investor.email,
+    subject: investorSubject,
+    html: investorEmail.html,
+    text: investorEmail.text,
+    idempotencyKey:
+      `withdrawal/${withdrawal.id}/submitted/investor`
+  })
+
+  const admins = await resolveStaffRecipients(
+    admin,
+    ['admin']
+  )
+
+  await Promise.all(
+    admins.map(async (recipient) => {
+      const subject =
+        'New withdrawal request awaiting review'
+
+      const email = buildPremiumInvestorEmail({
+        previewText: subject,
+        eyebrow: 'Administrator Review',
+        title: 'New Withdrawal Request',
+        greetingName: recipient.name,
+        message:
+          'A new investor withdrawal request has been submitted and is ready for administrator review. The payout address is intentionally omitted from email.',
+        statusLabel: 'Queue Status',
+        statusValue: 'Submitted',
+        details: [
+          {
+            label: 'Request',
+            value: withdrawal.requestReference
+          },
+          {
+            label: 'Investor',
+            value: investor.name
+          },
+          {
+            label: 'Opportunity',
+            value: withdrawal.opportunityTitle
+          },
+          {
+            label: 'Request Type',
+            value: withdrawalRequestTypeLabel(
+              withdrawal.requestType
+            )
+          },
+          {
+            label: 'Requested Amount',
+            value: currency(
+              withdrawal.requestedTotal
+            )
+          },
+          {
+            label: 'Payout',
+            value: withdrawalPayoutLabel(
+              withdrawal
+            )
+          }
+        ],
+        actionLabel: 'Review Withdrawal',
+        actionUrl: portalUrl(
+          '/admin/withdrawals'
+        )
+      })
+
+      await sendInvestorEmail({
+        to: recipient.email,
+        subject,
+        html: email.html,
+        text: email.text,
+        idempotencyKey:
+          `withdrawal/${withdrawal.id}/submitted/admin/${recipient.userId}`
+      })
+    })
+  )
+
+  return {
+    skipped: false,
+    recipientCount: 1 + admins.length
+  }
+}
+
+async function sendWithdrawalReviewedEmails(
+  admin: SupabaseClient,
+  withdrawal: WithdrawalRecord
+) {
+  if (
+    withdrawal.status !== 'under_review' &&
+    withdrawal.status !== 'approved' &&
+    withdrawal.status !== 'rejected'
+  ) {
+    return {
+      skipped: true,
+      reason:
+        'This withdrawal status does not send a review email.'
+    }
+  }
+
+  const investor = await resolveRecipient(
+    admin,
+    withdrawal.investorUserId
+  )
+
+  const approved =
+    withdrawal.status === 'approved'
+
+  const rejected =
+    withdrawal.status === 'rejected'
+
+  const subject = approved
+    ? 'Your withdrawal request has been approved'
+    : rejected
+      ? 'Update on your withdrawal request'
+      : 'Your withdrawal request is under review'
+
+  const defaultMessage = approved
+    ? 'Your withdrawal request has been approved and is now ready for the protected finance-processing workflow.'
+    : rejected
+      ? 'Your withdrawal request has completed administrator review and was not approved in its current form.'
+      : 'An administrator has started reviewing your withdrawal request. You can continue monitoring its status from your private investor portal.'
+
+  const email = buildPremiumInvestorEmail({
+    previewText: subject,
+    eyebrow: 'Withdrawal Review',
+    title: approved
+      ? 'Request Approved'
+      : rejected
+        ? 'Review Completed'
+        : 'Review In Progress',
+    greetingName: investor.name,
+    message:
+      withdrawal.investorMessage?.trim() ||
+      defaultMessage,
+    statusLabel: 'Current Status',
+    statusValue: withdrawalStatusLabel(
+      withdrawal.status
+    ),
+    details: [
+      {
+        label: 'Request',
+        value: withdrawal.requestReference
+      },
+      {
+        label: 'Application',
+        value: withdrawal.applicationReference
+      },
+      {
+        label: 'Opportunity',
+        value: withdrawal.opportunityTitle
+      },
+      {
+        label: approved
+          ? 'Approved Amount'
+          : 'Requested Amount',
+        value: currency(
+          approved
+            ? withdrawal.approvedTotal
+            : withdrawal.requestedTotal
+        )
+      },
+      {
+        label: 'Payout',
+        value: withdrawalPayoutLabel(
+          withdrawal
+        )
+      }
+    ],
+    actionLabel: 'View Withdrawal',
+    actionUrl: portalUrl(
+      '/dashboard/withdrawals'
+    )
+  })
+
+  await sendInvestorEmail({
+    to: investor.email,
+    subject,
+    html: email.html,
+    text: email.text,
+    idempotencyKey:
+      `withdrawal/${withdrawal.id}/${withdrawal.status}/investor`
+  })
+
+  let financeRecipientCount = 0
+
+  if (approved) {
+    const financeRecipients =
+      await resolveStaffRecipients(
+        admin,
+        ['finance', 'admin'],
+        withdrawal.reviewedBy
+          ? [withdrawal.reviewedBy]
+          : []
+      )
+
+    financeRecipientCount =
+      financeRecipients.length
+
+    await Promise.all(
+      financeRecipients.map(async (recipient) => {
+        const financeSubject =
+          'Approved withdrawal ready for processing'
+
+        const financeEmail =
+          buildPremiumInvestorEmail({
+            previewText: financeSubject,
+            eyebrow: 'Finance Queue',
+            title: 'Withdrawal Approved',
+            greetingName: recipient.name,
+            message:
+              'An administrator-approved withdrawal is ready for protected finance processing. Open the finance console to review the testnet payout address. The address is intentionally omitted from email.',
+            statusLabel: 'Queue Status',
+            statusValue: 'Approved',
+            details: [
+              {
+                label: 'Request',
+                value:
+                  withdrawal.requestReference
+              },
+              {
+                label: 'Investor',
+                value: investor.name
+              },
+              {
+                label: 'Opportunity',
+                value:
+                  withdrawal.opportunityTitle
+              },
+              {
+                label: 'Request Type',
+                value:
+                  withdrawalRequestTypeLabel(
+                    withdrawal.requestType
+                  )
+              },
+              {
+                label: 'Approved Amount',
+                value: currency(
+                  withdrawal.approvedTotal
+                )
+              },
+              {
+                label: 'Payout',
+                value: withdrawalPayoutLabel(
+                  withdrawal
+                )
+              }
+            ],
+            actionLabel: 'Open Finance Queue',
+            actionUrl: portalUrl(
+              '/admin/withdrawal-processing'
+            )
+          })
+
+        await sendInvestorEmail({
+          to: recipient.email,
+          subject: financeSubject,
+          html: financeEmail.html,
+          text: financeEmail.text,
+          idempotencyKey:
+            `withdrawal/${withdrawal.id}/approved/finance/${recipient.userId}`
+        })
+      })
+    )
+  }
+
+  return {
+    skipped: false,
+    recipientCount:
+      1 + financeRecipientCount
+  }
+}
+
+async function sendWithdrawalProcessingEmail(
+  admin: SupabaseClient,
+  withdrawal: WithdrawalRecord
+) {
+  if (withdrawal.status !== 'processing') {
+    return {
+      skipped: true,
+      reason:
+        'This withdrawal is not currently processing.'
+    }
+  }
+
+  const investor = await resolveRecipient(
+    admin,
+    withdrawal.investorUserId
+  )
+
+  const subject =
+    'Your withdrawal request is processing'
+
+  const email = buildPremiumInvestorEmail({
+    previewText: subject,
+    eyebrow: 'Withdrawal Processing',
+    title: 'Processing Started',
+    greetingName: investor.name,
+    message:
+      'Finance has started processing your approved withdrawal request through the protected testnet workflow. You can monitor its status from your private investor portal.',
+    statusLabel: 'Current Status',
+    statusValue: 'Processing',
+    details: [
+      {
+        label: 'Request',
+        value: withdrawal.requestReference
+      },
+      {
+        label: 'Opportunity',
+        value: withdrawal.opportunityTitle
+      },
+      {
+        label: 'Approved Amount',
+        value: currency(
+          withdrawal.approvedTotal
+        )
+      },
+      {
+        label: 'Payout',
+        value: withdrawalPayoutLabel(
+          withdrawal
+        )
+      }
+    ],
+    actionLabel: 'View Withdrawal',
+    actionUrl: portalUrl(
+      '/dashboard/withdrawals'
+    )
+  })
+
+  const sent = await sendInvestorEmail({
+    to: investor.email,
+    subject,
+    html: email.html,
+    text: email.text,
+    idempotencyKey:
+      `withdrawal/${withdrawal.id}/processing/investor`
+  })
+
+  return {
+    skipped: false,
+    emailId: sent.id
+  }
+}
+
+async function sendWithdrawalCompletedEmail(
+  admin: SupabaseClient,
+  withdrawal: WithdrawalRecord
+) {
+  if (withdrawal.status !== 'completed') {
+    return {
+      skipped: true,
+      reason:
+        'This withdrawal is not completed.'
+    }
+  }
+
+  const investor = await resolveRecipient(
+    admin,
+    withdrawal.investorUserId
+  )
+
+  const subject =
+    'Your withdrawal request has been completed'
+
+  const email = buildPremiumInvestorEmail({
+    previewText: subject,
+    eyebrow: 'Withdrawal Activity',
+    title: 'Withdrawal Completed',
+    greetingName: investor.name,
+    message:
+      'Your withdrawal request has been marked completed and the related portfolio accounting has been recorded. Sensitive transaction details are not included in email.',
+    statusLabel: 'Current Status',
+    statusValue: 'Completed',
+    details: [
+      {
+        label: 'Request',
+        value: withdrawal.requestReference
+      },
+      {
+        label: 'Application',
+        value: withdrawal.applicationReference
+      },
+      {
+        label: 'Opportunity',
+        value: withdrawal.opportunityTitle
+      },
+      {
+        label: 'Completed Amount',
+        value: currency(
+          withdrawal.approvedTotal
+        )
+      },
+      {
+        label: 'Request Type',
+        value: withdrawalRequestTypeLabel(
+          withdrawal.requestType
+        )
+      },
+      {
+        label: 'Payout',
+        value: withdrawalPayoutLabel(
+          withdrawal
+        )
+      }
+    ],
+    actionLabel: 'View Withdrawal',
+    actionUrl: portalUrl(
+      '/dashboard/withdrawals'
+    )
+  })
+
+  const sent = await sendInvestorEmail({
+    to: investor.email,
+    subject,
+    html: email.html,
+    text: email.text,
+    idempotencyKey:
+      `withdrawal/${withdrawal.id}/completed/investor`
+  })
+
+  return {
+    skipped: false,
+    emailId: sent.id
+  }
+}
+
 export async function POST(
   request: Request
 ) {
@@ -667,67 +1403,110 @@ export async function POST(
       )
     }
 
-    const {
-      data: assurance,
-      error: assuranceError
-    } =
-      await session.auth.mfa
-        .getAuthenticatorAssuranceLevel()
+    const admin = adminClient()
 
-    if (
-      assuranceError ||
-      assurance.currentLevel !== 'aal2'
-    ) {
-      return Response.json(
-        {
-          error: 'MFA verification required.'
-        },
-        {
-          status: 403
-        }
+    let role: StaffRole | null = null
+    let withdrawal: WithdrawalRecord | null = null
+
+    const withdrawalEvent =
+      body.event === 'withdrawal_submitted' ||
+      body.event === 'withdrawal_reviewed' ||
+      body.event === 'withdrawal_processing' ||
+      body.event === 'withdrawal_completed'
+
+    if (withdrawalEvent) {
+      withdrawal = await loadWithdrawalRecord(
+        admin,
+        body.recordId
       )
     }
 
-    const {
-      data: staffData,
-      error: staffError
-    } = await session
-      .from('staff_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .maybeSingle()
+    if (body.event === 'withdrawal_submitted') {
+      if (
+        !withdrawal ||
+        withdrawal.investorUserId !== user.id ||
+        withdrawal.status !== 'submitted'
+      ) {
+        return Response.json(
+          {
+            error:
+              'You are not authorized to send this notification.'
+          },
+          {
+            status: 403
+          }
+        )
+      }
+    } else {
+      const {
+        data: assurance,
+        error: assuranceError
+      } =
+        await session.auth.mfa
+          .getAuthenticatorAssuranceLevel()
 
-    if (staffError || !staffData) {
-      return Response.json(
-        {
-          error: 'Staff authorization required.'
-        },
-        {
-          status: 403
-        }
-      )
-    }
+      if (
+        assuranceError ||
+        assurance.currentLevel !== 'aal2'
+      ) {
+        return Response.json(
+          {
+            error: 'MFA verification required.'
+          },
+          {
+            status: 403
+          }
+        )
+      }
 
-    const role =
-      staffData.role as StaffRole
+      const {
+        data: staffData,
+        error: staffError
+      } = await session
+        .from('staff_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-    const allowed =
-      body.event === 'application_status'
-        ? role === 'reviewer' ||
-          role === 'admin'
-        : role === 'finance' ||
-          role === 'admin'
+      if (staffError || !staffData) {
+        return Response.json(
+          {
+            error: 'Staff authorization required.'
+          },
+          {
+            status: 403
+          }
+        )
+      }
 
-    if (!allowed) {
-      return Response.json(
-        {
-          error:
-            'You are not authorized to send this notification.'
-        },
-        {
-          status: 403
-        }
-      )
+      role = staffData.role as StaffRole
+
+      const allowed =
+        body.event === 'application_status'
+          ? role === 'reviewer' ||
+            role === 'admin'
+          : body.event === 'withdrawal_reviewed'
+            ? role === 'admin' &&
+              withdrawal?.reviewedBy === user.id
+            : body.event === 'withdrawal_processing' ||
+                body.event === 'withdrawal_completed'
+              ? (role === 'finance' ||
+                  role === 'admin') &&
+                withdrawal?.processedBy === user.id
+              : role === 'finance' ||
+                role === 'admin'
+
+      if (!allowed) {
+        return Response.json(
+          {
+            error:
+              'You are not authorized to send this notification.'
+          },
+          {
+            status: 403
+          }
+        )
+      }
     }
 
     if (
@@ -742,23 +1521,67 @@ export async function POST(
       })
     }
 
-    const admin = adminClient()
+    let result
 
-    const result =
-      body.event === 'application_status'
-        ? await sendApplicationStatusEmail(
-            admin,
-            body.recordId
-          )
-        : body.event === 'funding_review'
-          ? await sendFundingReviewEmail(
-              admin,
-              body.recordId
-            )
-          : await sendDistributionEmail(
-              admin,
-              body.recordId
-            )
+    if (body.event === 'application_status') {
+      result = await sendApplicationStatusEmail(
+        admin,
+        body.recordId
+      )
+    } else if (body.event === 'funding_review') {
+      result = await sendFundingReviewEmail(
+        admin,
+        body.recordId
+      )
+    } else if (
+      body.event === 'distribution_recorded'
+    ) {
+      result = await sendDistributionEmail(
+        admin,
+        body.recordId
+      )
+    } else if (
+      body.event === 'withdrawal_submitted' &&
+      withdrawal
+    ) {
+      result = await sendWithdrawalSubmittedEmails(
+        admin,
+        withdrawal
+      )
+    } else if (
+      body.event === 'withdrawal_reviewed' &&
+      withdrawal
+    ) {
+      result = await sendWithdrawalReviewedEmails(
+        admin,
+        withdrawal
+      )
+    } else if (
+      body.event === 'withdrawal_processing' &&
+      withdrawal
+    ) {
+      result = await sendWithdrawalProcessingEmail(
+        admin,
+        withdrawal
+      )
+    } else if (
+      body.event === 'withdrawal_completed' &&
+      withdrawal
+    ) {
+      result = await sendWithdrawalCompletedEmail(
+        admin,
+        withdrawal
+      )
+    } else {
+      return Response.json(
+        {
+          error: 'Invalid notification request.'
+        },
+        {
+          status: 400
+        }
+      )
+    }
 
     return Response.json({
       success: true,

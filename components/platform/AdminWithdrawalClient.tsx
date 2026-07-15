@@ -15,6 +15,7 @@ import {
   XCircle
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
+import { requestInvestorNotification } from '../../lib/email/request-investor-notification'
 
 export type WithdrawalStatus =
   | 'submitted'
@@ -558,12 +559,23 @@ export default function AdminWithdrawalClient({
         throw new Error(reviewError.message)
       }
 
-      setMessage(
+      const notificationSent =
+        await requestInvestorNotification(
+          'withdrawal_reviewed',
+          selectedRequest.requestId
+        )
+
+      const statusMessage =
         decision === 'under_review'
           ? 'The withdrawal request is now under review.'
           : decision === 'approved'
             ? 'The withdrawal request was approved for finance processing.'
             : 'The withdrawal request was rejected.'
+
+      setMessage(
+        notificationSent
+          ? `${statusMessage} The notification email was sent.`
+          : `${statusMessage} The status was saved, but the notification email could not be sent.`
       )
     })
   }

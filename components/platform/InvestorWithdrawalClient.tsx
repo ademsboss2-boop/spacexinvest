@@ -16,6 +16,7 @@ import {
   XCircle
 } from 'lucide-react'
 import { createClient } from '../../lib/supabase/client'
+import { requestInvestorNotification } from '../../lib/email/request-investor-notification'
 
 export type InvestorWithdrawalPosition = {
   positionId: string
@@ -321,7 +322,10 @@ export default function InvestorWithdrawalClient({
     setSubmitting(true)
 
     try {
-      const { error } = await supabase.rpc(
+      const {
+        data: requestId,
+        error
+      } = await supabase.rpc(
         'submit_investor_withdrawal',
         {
           p_position_id: selectedPosition.positionId,
@@ -342,8 +346,17 @@ export default function InvestorWithdrawalClient({
         return
       }
 
+      const notificationSent =
+        typeof requestId === 'string' &&
+        await requestInvestorNotification(
+          'withdrawal_submitted',
+          requestId
+        )
+
       setSuccessMessage(
-        'Your withdrawal request was submitted for administrator review.'
+        notificationSent
+          ? 'Your withdrawal request was submitted for administrator review, and the notification email was sent.'
+          : 'Your withdrawal request was submitted for administrator review. The request is recorded, but the notification email could not be sent.'
       )
       setWalletAddress('')
       setInvestorNote('')
