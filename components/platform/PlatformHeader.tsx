@@ -187,6 +187,10 @@ export default function PlatformHeader() {
         ...(staffRole === 'admin'
           ? [
               {
+                label: 'Withdrawal Review',
+                href: '/admin/withdrawals'
+              },
+              {
                 label: 'Staff Access',
                 href: '/admin/staff'
               }
@@ -247,7 +251,7 @@ export default function PlatformHeader() {
               disabled={loggingOut}
               className="btn btn-ghost disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loggingOut ? 'Logging out…' : 'Log out'}
+              {loggingOut ? 'Logging outâ€¦' : 'Log out'}
             </button>
           ) : (
             <>
@@ -308,7 +312,7 @@ export default function PlatformHeader() {
                   disabled={loggingOut}
                   className="btn btn-ghost mt-5 w-full disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {loggingOut ? 'Logging out…' : 'Log out'}
+                  {loggingOut ? 'Logging outâ€¦' : 'Log out'}
                 </button>
               ) : (
                 <div className="mt-5 grid grid-cols-2 gap-3">
