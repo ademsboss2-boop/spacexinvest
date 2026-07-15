@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  AlertTriangle,
   ArrowLeft,
   Bitcoin,
   CheckCircle2,
@@ -134,7 +133,7 @@ function validateWallet(asset: PayoutAsset, address: string) {
   if (asset === 'USDT') {
     return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(trimmed)
       ? ''
-      : 'Enter a valid TRON testnet TRC20 address.'
+      : 'Enter a valid TRON TRC20 wallet address.'
   }
 
   const legacyTestnet = /^[mn2][1-9A-HJ-NP-Za-km-z]{25,39}$/
@@ -143,7 +142,7 @@ function validateWallet(asset: PayoutAsset, address: string) {
   return legacyTestnet.test(trimmed) ||
     bech32Testnet.test(trimmed)
     ? ''
-    : 'Enter a valid Bitcoin testnet address.'
+    : 'Enter a valid Bitcoin wallet address.'
 }
 
 function maskWallet(address: string) {
@@ -437,20 +436,6 @@ export default function InvestorWithdrawalClient({
               </p>
             </div>
 
-            <div className="max-w-md border border-amber-300/20 bg-amber-300/[0.07] p-5 text-sm leading-6 text-amber-100/80">
-              <div className="flex items-start gap-3">
-                <AlertTriangle
-                  size={18}
-                  aria-hidden="true"
-                  className="mt-0.5 shrink-0"
-                />
-                <p>
-                  Test environment only. Use TRON or Bitcoin testnet
-                  addresses. Do not send real cryptocurrency to any
-                  address shown in this workflow.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -699,7 +684,7 @@ export default function InvestorWithdrawalClient({
 
                 <fieldset>
                   <legend className="text-sm font-medium text-white">
-                    Testnet payout asset
+                    Payout asset
                   </legend>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     {(['USDT', 'BTC'] as PayoutAsset[]).map((asset) => (
@@ -732,8 +717,8 @@ export default function InvestorWithdrawalClient({
                         )}
                         <p className="mt-3 text-sm font-medium text-white">
                           {asset === 'USDT'
-                            ? 'USDT · TRC20 testnet'
-                            : 'Bitcoin testnet'}
+                            ? 'USDT · TRC20'
+                            : 'Bitcoin'}
                         </p>
                       </label>
                     ))}
@@ -746,8 +731,8 @@ export default function InvestorWithdrawalClient({
                     className="text-sm font-medium text-white"
                   >
                     {payoutAsset === 'USDT'
-                      ? 'TRON testnet wallet address'
-                      : 'Bitcoin testnet wallet address'}
+                      ? 'TRON wallet address'
+                      : 'Bitcoin wallet address'}
                   </label>
                   <input
                     id="wallet-address"
@@ -760,8 +745,8 @@ export default function InvestorWithdrawalClient({
                     spellCheck={false}
                     placeholder={
                       payoutAsset === 'USDT'
-                        ? 'T...'
-                        : 'm..., n..., 2..., or tb1...'
+                        ? 'Enter TRON wallet address'
+                        : 'Enter Bitcoin wallet address'
                     }
                     className="mt-2 min-h-12 w-full border border-white/15 bg-black/60 px-4 font-mono text-sm text-white outline-none placeholder:text-white/20 focus:border-white/40"
                   />
@@ -1006,8 +991,8 @@ export default function InvestorWithdrawalClient({
                         <p className="mt-2 text-sm text-white/75">
                           {request.payoutAsset} ·{' '}
                           {request.payoutNetwork === 'TRON_TESTNET_TRC20'
-                            ? 'TRC20 testnet'
-                            : 'Bitcoin testnet'}
+                            ? 'TRC20'
+                            : 'Bitcoin'}
                         </p>
                       </div>
                       <div>
