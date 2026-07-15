@@ -115,8 +115,44 @@ function percentage(value: number) {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
 }
 
+type RpcError = {
+  message?: string
+  details?: string | null
+  hint?: string | null
+  code?: string
+}
+
+function rpcErrorMessage(
+  error: RpcError,
+  fallback: string
+) {
+  const parts = [
+    error.message,
+    error.details,
+    error.hint
+  ]
+    .filter(
+      (value): value is string =>
+        Boolean(value?.trim())
+    )
+    .map((value) => value.trim())
+
+  const message = [...new Set(parts)].join(' ')
+
+  return error.code
+    ? `${message || fallback} (${error.code})`
+    : message || fallback
+}
+
 function today() {
-  return new Date().toISOString().slice(0, 10)
+  const now = new Date()
+
+  const localDate = new Date(
+    now.getTime() -
+      now.getTimezoneOffset() * 60_000
+  )
+
+  return localDate.toISOString().slice(0, 10)
 }
 
 function formatDate(value: string | null) {
@@ -167,6 +203,15 @@ export default function AdminPortfolioClient({
     useState(today())
 
   const [distributionNote, setDistributionNote] =
+    useState('')
+
+  const [profitCreditAmount, setProfitCreditAmount] =
+    useState('')
+
+  const [profitCreditDate, setProfitCreditDate] =
+    useState(today())
+
+  const [profitCreditNote, setProfitCreditNote] =
     useState('')
 
   const [portfolioStatus, setPortfolioStatus] =
@@ -308,7 +353,12 @@ export default function AdminPortfolioClient({
         )
 
       if (valuationError) {
-        throw new Error(valuationError.message)
+        throw new Error(
+          rpcErrorMessage(
+            valuationError,
+            'The valuation could not be recorded.'
+          )
+        )
       }
 
       setValuationNote('')
@@ -342,44 +392,112 @@ export default function AdminPortfolioClient({
         data: distributionId,
         error: distributionError
       } = await supabase.rpc(
-          'record_portfolio_distribution',
-          {
-            p_application_id:
-              selectedPortfolio.applicationId,
-            p_distribution_type:
-              distributionType,
-            p_amount: amount,
-            p_effective_date:
-              distributionDate,
-            p_finance_note:
-              distributionNote.trim() || null
-          }
-        )
+        'record_portfolio_distribution',
+        {
+          p_application_id:
+            selectedPortfolio.applicationId,
+          p_distribution_type:
+            distributionType,
+          p_amount: amount,
+          p_effective_date:
+            distributionDate,
+          p_finance_note:
+            distributionNote.trim() || null
+        }
+      )
 
       if (distributionError) {
         throw new Error(
-          distributionError.message
+          rpcErrorMessage(
+            distributionError,
+            'The distribution could not be recorded.'
+          )
         )
       }
 
-      const notificationSent =
-        typeof distributionId === 'string'
-          ? await requestInvestorNotification(
+      let notificationSent = false
+
+      if (typeof distributionId === 'string') {
+        try {
+          notificationSent =
+            await requestInvestorNotification(
               'distribution_recorded',
               distributionId
             )
-          : false
-
-      if (!notificationSent) {
-        console.warn(
-          'Distribution saved, but email notification failed.'
-        )
+        } catch (notificationError) {
+          console.warn(
+            'Distribution saved, but email notification failed.',
+            notificationError
+          )
+        }
       }
 
       setDistributionAmount('')
       setDistributionNote('')
+
       setMessage(
-        'The portfolio distribution was recorded successfully.'
+        notificationSent
+          ? 'The portfolio distribution was recorded and the notification email was sent.'
+          : 'The portfolio distribution was recorded successfully. The notification email was not sent.'
+      )
+    })
+  }
+
+  async function recordProfitCredit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault()
+
+    if (!selectedPortfolio) {
+      setError('Select a portfolio position.')
+      return
+    }
+
+    if (selectedPortfolio.portfolioStatus !== 'active') {
+      setError(
+        'Withdrawable profit can only be credited to an active portfolio.'
+      )
+      return
+    }
+
+    const amount = Number(profitCreditAmount)
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError(
+        'Enter a withdrawable-profit amount greater than zero.'
+      )
+      return
+    }
+
+    await runAction('profit-credit', async () => {
+      const { error: profitCreditError } =
+        await supabase.rpc(
+          'record_portfolio_profit_credit',
+          {
+            p_position_id:
+              selectedPortfolio.positionId,
+            p_amount: amount,
+            p_effective_date:
+              profitCreditDate,
+            p_finance_note:
+              profitCreditNote.trim() || null
+          }
+        )
+
+      if (profitCreditError) {
+        throw new Error(
+          rpcErrorMessage(
+            profitCreditError,
+            'Withdrawable profit could not be credited.'
+          )
+        )
+      }
+
+      setProfitCreditAmount('')
+      setProfitCreditNote('')
+
+      setMessage(
+        'Withdrawable realized profit was credited successfully.'
       )
     })
   }
@@ -592,7 +710,7 @@ export default function AdminPortfolioClient({
               ) : null}
             </section>
 
-            <div className="mt-6 grid gap-6 xl:grid-cols-3">
+            <div className="mt-6 grid gap-6 xl:grid-cols-2 2xl:grid-cols-4">
               <form
                 onSubmit={recordValuation}
                 className="border border-white/10 bg-white/[0.025] p-6"
@@ -689,7 +807,7 @@ export default function AdminPortfolioClient({
                     Income
                   </option>
                   <option value="realized_profit">
-                    Realized profit
+                    Realized profit paid
                   </option>
                   <option value="return_of_capital">
                     Return of capital
@@ -747,6 +865,78 @@ export default function AdminPortfolioClient({
                     <CircleDollarSign size={16} />
                   )}
                   Save Distribution
+                </button>
+              </form>
+
+              <form
+                onSubmit={recordProfitCredit}
+                className="border border-white/10 bg-white/[0.025] p-6"
+              >
+                <TrendingUp
+                  size={18}
+                  className="text-emerald-100"
+                />
+
+                <h2 className="mt-4 text-xl font-semibold text-white">
+                  Credit Withdrawable Profit
+                </h2>
+
+                <p className="mt-3 text-xs leading-6 text-white/35">
+                  Makes realized profit available for an investor
+                  withdrawal. This does not mark the profit as paid.
+                </p>
+
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={profitCreditAmount}
+                  onChange={(event) =>
+                    setProfitCreditAmount(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Withdrawable profit amount"
+                  className="mt-6 min-h-12 w-full border border-white/10 bg-black px-4 text-sm text-white"
+                />
+
+                <input
+                  type="date"
+                  value={profitCreditDate}
+                  onChange={(event) =>
+                    setProfitCreditDate(
+                      event.target.value
+                    )
+                  }
+                  className="mt-3 min-h-12 w-full border border-white/10 bg-black px-4 text-sm text-white"
+                />
+
+                <textarea
+                  rows={3}
+                  value={profitCreditNote}
+                  onChange={(event) =>
+                    setProfitCreditNote(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Internal profit-credit note"
+                  className="mt-3 w-full border border-white/10 bg-black p-4 text-sm text-white"
+                />
+
+                <button
+                  type="submit"
+                  disabled={workingAction !== null}
+                  className="btn btn-primary mt-4 min-h-12 w-full gap-2"
+                >
+                  {workingAction === 'profit-credit' ? (
+                    <Loader2
+                      size={16}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <TrendingUp size={16} />
+                  )}
+                  Credit Profit
                 </button>
               </form>
 
